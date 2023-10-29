@@ -21,17 +21,17 @@ public class ColorPixel implements Pixel{
 
   @Override
   public int getRedValue() {
-    return 0;
+    return red;
   }
 
   @Override
   public int getGreenValue() {
-    return 0;
+    return green;
   }
 
   @Override
   public int getBlueValue() {
-    return 0;
+    return blue;
   }
 
 

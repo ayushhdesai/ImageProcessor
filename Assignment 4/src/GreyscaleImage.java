@@ -1,22 +1,32 @@
 public class GreyscaleImage implements Image {
 
-  private Pixel[][] pixels;
+  Pixel[][] pixels;
 
   public GreyscaleImage(Pixel[][] pixels){
     this.pixels = pixels;
   }
-  @Override
-  public Image visualizeRedComponent() {
-    return null;
-  }
-  @Override
-  public Image visualizeBlueComponent() {
-    return null;
-  }
 
   @Override
+  public Image visualizeRedComponent() {
+    GreyPixel[][] redComp = new GreyPixel[this.pixels.length][this.pixels[0].length];
+    for (int i = 0; i < pixels.length; i++) {
+      for (int j = 0; j < pixels[i].length; j++) {
+        redComp[i][j] = new GreyPixel(this.pixels[i][j].getRedValue());
+      }
+    }
+    return new GreyscaleImage(redComp);
+  }
+
+  // Grayscale image has only one channel, so return the same copy.
+  @Override
+  public Image visualizeBlueComponent() {
+    return this.visualizeRedComponent();
+  }
+
+  // Grayscale image has only one channel, so return the same copy.
+  @Override
   public Image visualizeGreenComponent() {
-    return null;
+    return this.visualizeRedComponent();
   }
 
   @Override
