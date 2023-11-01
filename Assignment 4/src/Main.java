@@ -46,7 +46,16 @@ public class Main {
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
         ColorPixel pixel = (ColorPixel) pixels[y][x];
-        Color color = new Color(pixel.getRedValue(), pixel.getGreenValue(), pixel.getBlueValue());
+        int red = pixel.getRedValue();
+        red = Math.min(255, Math.max(0, red));
+
+        int green = pixel.getGreenValue();
+        green = Math.min(255, Math.max(0, green));
+
+        int blue = pixel.getBlueValue();
+        blue = Math.min(255, Math.max(0, blue));
+
+        Color color = new Color(red, green, blue);
         image.setRGB(x, y, color.getRGB());
       }
     }
@@ -56,7 +65,7 @@ public class Main {
   public static void main(String[] args) {
     try {
       Map<String, Image> imageMap = new HashMap<>();
-      List<String> commands = Files.readAllLines(Paths.get("C:/Users/Kavish Desai/OneDrive/Desktop/ProgramDesignParadigm/Group/Assignment 4/src/output.txt"));
+      List<String> commands = Files.readAllLines(Paths.get("C:/Users/Kavish Desai/OneDrive/Desktop/ProgramDesignParadigm/Assignment 4/Assignment 4/src/output.txt"));
 
       for (String command : commands) {
         String[] parts = command.split(" ");
@@ -69,7 +78,7 @@ public class Main {
             imageMap.put(parts[2], new ColorImage(pixels));
             break;
 
-          case "linear-transform":
+          case "sepia":
             ColorImage imageToTransform = (ColorImage) imageMap.get(parts[1]);
             float[][] mat = {
                     {0.393F, 0.769F, 0.189F},
@@ -78,6 +87,17 @@ public class Main {
             };
             Image transformedImage = imageToTransform.linearTransform(mat);
             imageMap.put(parts[2], transformedImage);
+            break;
+
+          case "greyscale":
+            ColorImage imageToTransform3 = (ColorImage) imageMap.get(parts[1]);
+            float[][] mat3 = {
+                    {0.2126F, 0.7152F, 0.0722F},
+                    {0.2126F, 0.7152F, 0.0722F},
+                    {0.2126F, 0.7152F, 0.0722F}
+            };
+            Image transformedImage3 = imageToTransform3.linearTransform(mat3);
+            imageMap.put(parts[2], transformedImage3);
             break;
 
           case "vertical-flip":
@@ -92,9 +112,35 @@ public class Main {
             imageMap.put(parts[2], flipImage1);
             break;
 
+          case "blur":
+            ColorImage imageToTransform1 = (ColorImage) imageMap.get(parts[1]);
+            float[][] kernel = {
+                    {0.0625F, 0.125F, 0.0625F},
+                    {0.125F, 0.25F, 0.125F},
+                    {0.0625F, 0.125F, 0.0625F}
+            };
+            Image transformedImage1 = imageToTransform1.filter(kernel);
+            imageMap.put(parts[2], transformedImage1);
+            break;
+
+          case "sharpen":
+            ColorImage imageToTransform2 = (ColorImage) imageMap.get(parts[1]);
+            float[][] kernel1 = {
+                    {-0.125F, -0.125F, -0.125F, -0.125F, -0.125F},
+                    {-0.125F, 0.25F, 0.25F, 0.25F, -0.125F},
+                    {-0.125F, 0.25F, 1F, 0.25F, -0.125F},
+                    {-0.125F, 0.25F, 0.25F, 0.25F, -0.125F},
+                    {-0.125F, -0.125F, -0.125F, -0.125F, -0.125F}
+            };
+            Image transformedImage2 = imageToTransform2.filter(kernel1);
+            imageMap.put(parts[2], transformedImage2);
+            break;
+
           case "save":
-            BufferedImage imgToSave = convertToBufferedImage(((ColorImage) imageMap.get(parts[3])).pixels);
-            saveImage(imgToSave, parts[1], parts[2]);
+            String filePath = parts[1];
+            String extension = filePath.substring(filePath.lastIndexOf(".") + 1);
+            BufferedImage imgToSave = convertToBufferedImage(((ColorImage) imageMap.get(parts[2])).pixels);
+            saveImage(imgToSave, extension, parts[1]);
             break;
 
           case "brighten":

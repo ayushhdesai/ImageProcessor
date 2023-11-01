@@ -2,8 +2,14 @@ load C:/Users/Ayush/abc.png loadedImage
 brighten 50 loadedImage brightenImage
 vertical-flip loadedImage verticalFlip
 horizontal-flip loadedImage horizontalFlip
-linear-transform loadedImage transformedImage
-save jpeg C:/Users/Ayush/linearTransform.jpeg transformedImage
-save jpeg C:/Users/Ayush/brightenImage.jpeg brightenImage
-save jpeg C:/Users/Ayush/verticalFlip.jpeg verticalFlip
-save jpeg C:/Users/Ayush/horizontalFlip.jpeg horizontalFlip
+sepia loadedImage sepiaImage
+greyscale loadedImage greyImage
+blur loadedImage blurImage
+sharpen loadedImage sharpenImage
+save C:/Users/Ayush/sepiaTransform.jpeg sepiaImage
+save C:/Users/Ayush/greyTransform.jpeg greyImage
+save C:/Users/Ayush/brightenImage.jpeg brightenImage
+save C:/Users/Ayush/verticalFlip.jpeg verticalFlip
+save C:/Users/Ayush/horizontalFlip.jpeg horizontalFlip
+save C:/Users/Ayush/blurImage.jpeg blurImage
+save C:/Users/Ayush/sharpenImage.jpeg sharpenImage
