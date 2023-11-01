@@ -1,10 +1,15 @@
 public class ColorImage implements Image {
 
-  Pixel[][] pixels;
+  protected Pixel[][] pixels;
 
   public ColorImage(Pixel[][] pixels) {
     this.pixels = pixels;
   }
+
+  public Pixel[][] getPixels(){
+    return this.pixels;
+  }
+
 
   @Override
   public Image visualizeRedComponent() {
@@ -97,21 +102,18 @@ public class ColorImage implements Image {
 
   @Override
   public Image combineChannel(Image redImage, Image greenImage, Image blueImage) {
-    if (!(redImage instanceof ColorImage) || !(greenImage instanceof ColorImage) || !(blueImage instanceof ColorImage)) {
+    if (!(redImage instanceof GreyscaleImage) || !(greenImage instanceof GreyscaleImage) ||
+            !(blueImage instanceof GreyscaleImage)) {
       throw new IllegalArgumentException("Component type is not similar.");
     }
-
-    ColorImage red = (ColorImage) redImage;
-    ColorImage green = (ColorImage) greenImage;
-    ColorImage blue = (ColorImage) blueImage;
 
     Pixel[][] combinedPixels = new ColorPixel[this.pixels.length][this.pixels[0].length];
 
     for (int i = 0; i < pixels.length; i++) {
       for (int j = 0; j < pixels[i].length; j++) {
-        int redValue = red.pixels[i][j].getRedValue();
-        int greenValue = green.pixels[i][j].getGreenValue();
-        int blueValue = blue.pixels[i][j].getBlueValue();
+        int redValue = redImage.getPixels()[i][j].getRedValue();
+        int greenValue = greenImage.getPixels()[i][j].getGreenValue();
+        int blueValue = blueImage.getPixels()[i][j].getBlueValue();
 
         combinedPixels[i][j] = new ColorPixel(redValue, greenValue, blueValue);
       }
@@ -122,7 +124,7 @@ public class ColorImage implements Image {
 
 
   @Override
-  public Image horizontalFlip() {
+  public Image verticalFlip() {
     Pixel[][] flippedPixels = new ColorPixel[this.pixels.length][this.pixels[0].length];
 
     for (int i = 0; i < pixels.length; i++) {
@@ -136,7 +138,7 @@ public class ColorImage implements Image {
   }
 
   @Override
-  public Image verticalFlip() {
+  public Image horizontalFlip() {
     Pixel[][] flippedPixels = new ColorPixel[this.pixels.length][this.pixels[0].length];
 
     for (int i = 0; i < pixels.length; i++) {
@@ -169,13 +171,61 @@ public class ColorImage implements Image {
 
 
   @Override
-  public Image filter(int[][] kernel) {
-    return null;
+  public Image filter(float[][] kernel) {
+
+    if(kernel.length%2==0 || kernel[0].length%2==0){
+      throw new IllegalArgumentException("Kernel cannot have event length");
+    }
+
+    int rows = this.getRedChannel().getPixels().length;
+    int cols = this.getRedChannel().getPixels()[0].length;
+
+    Pixel[][] resultantRedChannelPixels = this.getRedChannel().getPixels();
+    Pixel[][] resultantGreenChannelPixels = this.getGreenChannel().getPixels();
+    Pixel[][] resultantBlueChannelPixels = this.getBlueChannel().getPixels();
+
+    Pixel[][] currentRedChannelPixels = this.getRedChannel().getPixels();
+    Pixel[][] currentGreenChannelPixels = this.getGreenChannel().getPixels();
+    Pixel[][] currentBlueChannelPixels = this.getBlueChannel().getPixels();
+
+    int midrow = kernel.length/2;
+    int midcol = kernel[0].length/2;
+
+    for(int i=0; i<pixels.length; i++){
+      for(int j=0; j<pixels[i].length; j++){
+        int sumred =0, sumgreen=0, sumblue=0;
+        for(int x=0; x< kernel.length; x++){
+          for(int y=0; y<kernel[x].length; y++){
+
+            int rowIndex = i - midrow + x;
+            int colIndex = j - midcol + y;
+
+            if (rowIndex >= 0 && rowIndex < rows && colIndex >= 0 && colIndex < cols) {
+              sumred += currentRedChannelPixels[rowIndex][colIndex].getRedValue() * kernel[x][y];
+              sumgreen += currentGreenChannelPixels[rowIndex][colIndex].getGreenValue() * kernel[x][y];
+              sumblue += currentBlueChannelPixels[rowIndex][colIndex].getBlueValue() * kernel[x][y];
+            }
+          }
+        }
+
+        resultantRedChannelPixels[i][j] = new GreyPixel(sumred);
+        resultantGreenChannelPixels[i][j] = new GreyPixel(sumgreen);
+        resultantBlueChannelPixels[i][j] = new GreyPixel(sumblue);
+
+      }
+    }
+
+
+    return combineChannel(new GreyscaleImage(resultantRedChannelPixels),
+            new GreyscaleImage(resultantGreenChannelPixels),
+            new GreyscaleImage(resultantBlueChannelPixels));
   }
 
   @Override
-  public Image linearTransform(int[][] mat) {
-
+  public Image linearTransform(float[][] mat) {
+    if(mat.length!=3 || mat[0].length!=3) {
+      throw new IllegalArgumentException("Improper kernel matrix size");
+    }
     Pixel[][] transformedPixels = new ColorPixel[this.pixels.length][this.pixels[0].length];
 
     for (int i = 0; i < pixels.length; i++) {
@@ -184,9 +234,9 @@ public class ColorImage implements Image {
         int oldGreen = this.pixels[i][j].getGreenValue();
         int oldBlue = this.pixels[i][j].getBlueValue();
 
-        int newRed = mat[0][0] * oldRed + mat[0][1] * oldGreen + mat[0][2] * oldBlue;
-        int newGreen = mat[1][0] * oldRed + mat[1][1] * oldGreen + mat[1][2] * oldBlue;
-        int newBlue = mat[2][0] * oldRed + mat[2][1] * oldGreen + mat[2][2] * oldBlue;
+        int newRed = (int) (mat[0][0] * oldRed + mat[0][1] * oldGreen + mat[0][2] * oldBlue);
+        int newGreen = (int) (mat[1][0] * oldRed + mat[1][1] * oldGreen + mat[1][2] * oldBlue);
+        int newBlue = (int) (mat[2][0] * oldRed + mat[2][1] * oldGreen + mat[2][2] * oldBlue);
 
         // Keep in range
         newRed = Math.min(255, Math.max(0, newRed));
@@ -203,16 +253,44 @@ public class ColorImage implements Image {
 
   @Override
   public Image getRedChannel() {
-    return null;
+    Pixel[][] greyPixelsForRedChannel = new GreyPixel[this.pixels.length][this.pixels[0].length];
+
+    for (int i = 0; i < pixels.length; i++) {
+      for (int j = 0; j < pixels[i].length; j++) {
+
+        int redValue = this.pixels[i][j].getRedValue();
+        greyPixelsForRedChannel[i][j] = new GreyPixel(redValue);
+      }
+    }
+
+    return new GreyscaleImage(greyPixelsForRedChannel);
   }
 
   @Override
   public Image getBlueChannel() {
-    return null;
+    Pixel[][] greyPixelsForBlueChannel = new GreyPixel[this.pixels.length][this.pixels[0].length];
+
+    for (int i = 0; i < pixels.length; i++) {
+      for (int j = 0; j < pixels[i].length; j++) {
+        int blueValue = this.pixels[i][j].getBlueValue();
+        greyPixelsForBlueChannel[i][j] = new GreyPixel(blueValue);
+      }
+    }
+
+    return new GreyscaleImage(greyPixelsForBlueChannel);
   }
 
   @Override
   public Image getGreenChannel() {
-    return null;
+    Pixel[][] greyPixelsForGreenChannel = new GreyPixel[this.pixels.length][this.pixels[0].length];
+
+    for (int i = 0; i < pixels.length; i++) {
+      for (int j = 0; j < pixels[i].length; j++) {
+        int greenValue = this.pixels[i][j].getGreenValue();
+        greyPixelsForGreenChannel[i][j] = new GreyPixel(greenValue);
+      }
+    }
+
+    return new GreyscaleImage(greyPixelsForGreenChannel);
   }
 }

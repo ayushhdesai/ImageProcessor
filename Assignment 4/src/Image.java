@@ -18,13 +18,15 @@ public interface Image {
   Image brighten(int alpha);
 
 
-  Image filter(int[][] kernel);
+  Image filter(float[][] kernel);
 
-  Image linearTransform(int[][] mat);
+  Image linearTransform(float[][] mat);
 
   Image getRedChannel();
   Image getBlueChannel();
   Image getGreenChannel();
+
+  Pixel[][] getPixels();
 
 
 }

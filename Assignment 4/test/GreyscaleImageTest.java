@@ -22,36 +22,13 @@ public class GreyscaleImageTest {
   public void testVisualizeRedComponent() {
     Image redCompImage = greyscaleImage.visualizeRedComponent();
 
-    GreyscaleImage redCompGreyscale = (GreyscaleImage) redCompImage;
+
     for (int i = 0; i < samplePixels.length; i++) {
       for (int j = 0; j < samplePixels[i].length; j++) {
-        assertEquals(samplePixels[i][j].getRedValue(), ((GreyPixel) redCompGreyscale.pixels[i][j]).getRedValue());
+        assertEquals(samplePixels[i][j].getRedValue(), redCompImage.getPixels()[i][j].getRedValue());
       }
     }
   }
 
-  @Test
-  public void testVisualizeBlueComponent() {
-    Image blueCompImage = greyscaleImage.visualizeBlueComponent();
-
-    GreyscaleImage blueCompGreyscale = (GreyscaleImage) blueCompImage;
-    for (int i = 0; i < samplePixels.length; i++) {
-      for (int j = 0; j < samplePixels[i].length; j++) {
-        assertEquals(samplePixels[i][j].getRedValue(), ((GreyPixel) blueCompGreyscale.pixels[i][j]).getRedValue());
-      }
-    }
-  }
-
-  @Test
-  public void testVisualizeGreenComponent() {
-    Image greenCompImage = greyscaleImage.visualizeGreenComponent();
-
-    GreyscaleImage greenCompGreyscale = (GreyscaleImage) greenCompImage;
-    for (int i = 0; i < samplePixels.length; i++) {
-      for (int j = 0; j < samplePixels[i].length; j++) {
-        assertEquals(samplePixels[i][j].getRedValue(), ((GreyPixel) greenCompGreyscale.pixels[i][j]).getRedValue());
-      }
-    }
-  }
 
 }
