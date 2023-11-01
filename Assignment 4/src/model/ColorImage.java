@@ -1,3 +1,5 @@
+package model;
+
 public class ColorImage implements Image {
 
   protected Pixel[][] pixels;

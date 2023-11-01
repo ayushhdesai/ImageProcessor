@@ -1,3 +1,5 @@
+package model;
+
 public class ColorPixel implements Pixel{
   protected int red;
   protected int green;

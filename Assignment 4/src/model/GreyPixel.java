@@ -1,3 +1,5 @@
+package model;
+
 public class GreyPixel extends ColorPixel{
 
   public GreyPixel(int color){
