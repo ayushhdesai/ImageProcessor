@@ -1,3 +1,6 @@
+/**
+ * An image
+ */
 public interface Image {
   Image visualizeRedComponent();
   Image visualizeBlueComponent();

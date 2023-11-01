@@ -89,6 +89,63 @@ public class Main {
             imageMap.put(parts[2], transformedImage);
             break;
 
+          case "red-component":
+            Image imageToRedTransform = imageMap.get(parts[1]);
+            Image redComponent = imageToRedTransform.visualizeRedComponent();
+            imageMap.put(parts[2], redComponent);
+            break;
+
+          case "blue-component":
+            Image imageToBlueTransform = imageMap.get(parts[1]);
+            Image blueComponent = imageToBlueTransform.visualizeBlueComponent();
+            imageMap.put(parts[2], blueComponent);
+            break;
+
+
+          case "green-component":
+            Image imageToGreenTransform = imageMap.get(parts[1]);
+            Image greenComponent = imageToGreenTransform.visualizeGreenComponent();
+            imageMap.put(parts[2], greenComponent);
+            break;
+
+          case "value":
+            Image imageToValueTransform = imageMap.get(parts[1]);
+            GreyscaleImage valueComponent = (GreyscaleImage) imageToValueTransform.getValue();
+            imageMap.put(parts[2], valueComponent);
+            break;
+
+          case "luma":
+            Image imageToLumaTransform = imageMap.get(parts[1]);
+            GreyscaleImage lumaComponent = (GreyscaleImage) imageToLumaTransform.getLuma();
+            imageMap.put(parts[2], lumaComponent);
+            break;
+
+          case "intensity":
+            Image imageToIntensityTransform = imageMap.get(parts[1]);
+            GreyscaleImage intensityComponent = (GreyscaleImage) imageToIntensityTransform.getIntensity();
+            imageMap.put(parts[2], intensityComponent);
+            break;
+
+          case "rgb-split":
+            Image imageToSplit = imageMap.get(parts[1]);
+            GreyscaleImage redSplit = (GreyscaleImage) imageToSplit.getRedChannel();
+            GreyscaleImage greenSplit = (GreyscaleImage) imageToSplit.getGreenChannel();
+            GreyscaleImage blueSplit = (GreyscaleImage) imageToSplit.getBlueChannel();
+
+            imageMap.put(parts[2], redSplit);
+            imageMap.put(parts[3], greenSplit);
+            imageMap.put(parts[4], blueSplit);
+            break;
+
+          case "rgb-combine":
+            Image redGreyImage = imageMap.get(parts[2]);
+            Image greenGreyImage = imageMap.get(parts[3]);
+            Image blueGreyImage = imageMap.get(parts[4]);
+
+            Image combinedImage = redGreyImage.combineChannel(redGreyImage,greenGreyImage,blueGreyImage);
+            imageMap.put(parts[1], combinedImage);
+            break;
+
           case "greyscale":
             ColorImage imageToTransform3 = (ColorImage) imageMap.get(parts[1]);
             float[][] mat3 = {
