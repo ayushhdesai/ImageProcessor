@@ -1,4 +1,5 @@
 import javax.imageio.ImageIO;
+
 import java.awt.image.BufferedImage;
 import java.awt.Color;
 import java.io.File;
@@ -74,7 +75,8 @@ public class Main {
   public static void main(String[] args) {
     try {
       Map<String, Image> imageMap = new HashMap<>();
-      List<String> commands = Files.readAllLines(Paths.get("C:/Users/Kavish Desai/OneDrive/Desktop/ProgramDesignParadigm/Assignments/ProgramDesignParadigm/Assignment 4/src/output.txt"));
+      String path = "C:/Users/Kavish Desai/OneDrive/Desktop/ProgramDesignParadigm/Assignments/ProgramDesignParadigm/Assignment 4/src/output.txt";
+      List<String> commands = Files.readAllLines(Paths.get(path));
 
       for (String command : commands) {
         String[] parts = command.split(" ");
@@ -151,7 +153,7 @@ public class Main {
             Image greenGreyImage = imageMap.get(parts[3]);
             Image blueGreyImage = imageMap.get(parts[4]);
 
-            Image combinedImage = redGreyImage.combineChannel(redGreyImage,greenGreyImage,blueGreyImage);
+            Image combinedImage = redGreyImage.combineChannel(redGreyImage, greenGreyImage, blueGreyImage);
             imageMap.put(parts[1], combinedImage);
             break;
 
