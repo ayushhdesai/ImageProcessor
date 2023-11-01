@@ -1,15 +1,20 @@
+load C:/Users/Ayush/Koala.ppm loadImg1
+horizontal-flip loadImg1 horizontalFlip1
+save C:/Users/Ayush/PPM/sPPM.ppm horizontalFlip1
+save C:/Users/Ayush/PPM/sPPM.jpg horizontalFlip1
+vertical-flip loadImg1 verticalFlip1
+save C:/Users/Ayush/PPM/sPPM1.ppm verticalFlip1
+save C:/Users/Ayush/PPM/sPPM1.jpg verticalFlip1
+brighten 50 loadImg1 brightenImg
+save C:/Users/Ayush/PPM/sPPM2.ppm brightenImg
+save C:/Users/Ayush/PPM/sPPM2.png brightenImg
+
 load C:/Users/Ayush/abc.png loadedImage
 brighten 50 loadedImage brightenImage
+save C:/Users/Ayush/Test/brightenImage.jpeg brightenImage
 vertical-flip loadedImage verticalFlip
+save C:/Users/Ayush/Test/verticalFlip.jpeg verticalFlip
 horizontal-flip loadedImage horizontalFlip
-sepia loadedImage sepiaImage
-greyscale loadedImage greyImage
-blur loadedImage blurImage
-sharpen loadedImage sharpenImage
-save C:/Users/Ayush/sepiaTransform.jpeg sepiaImage
-save C:/Users/Ayush/greyTransform.jpeg greyImage
-save C:/Users/Ayush/brightenImage.jpeg brightenImage
-save C:/Users/Ayush/verticalFlip.jpeg verticalFlip
-save C:/Users/Ayush/horizontalFlip.jpeg horizontalFlip
-save C:/Users/Ayush/blurImage.jpeg blurImage
-save C:/Users/Ayush/sharpenImage.jpeg sharpenImage
+save C:/Users/Ayush/Test/horizontalFlip.jpeg horizontalFlip
+sepia loadedImage transformedImage
+save C:/Users/Ayush/Test/sepia.jpeg transformedImage

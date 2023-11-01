@@ -12,16 +12,25 @@ import java.util.Map;
 public class Main {
 
   public static BufferedImage loadImage(String path) throws IOException {
-    BufferedImage image = ImageIO.read(new File(path));
-    if (image == null) {
-      throw new IOException("Failed to load image from path: " + path);
+    String extension = path.substring(path.lastIndexOf(".") + 1);
+    if (extension.equalsIgnoreCase("ppm")) {
+      return ImageUtil.readPPM(path);
+    } else {
+      BufferedImage image = ImageIO.read(new File(path));
+      if (image == null) {
+        throw new IOException("Failed to load image from path: " + path);
+      }
+      return image;
     }
-    return image;
   }
 
 
   public static void saveImage(BufferedImage image, String format, String path) throws IOException {
-    ImageIO.write(image, format, new File(path));
+    if (format.equalsIgnoreCase("ppm")) {
+      ImageUtil.writePPM(image, path);
+    } else {
+      ImageIO.write(image, format, new File(path));
+    }
   }
 
   public static Pixel[][] convertToPixels(BufferedImage image) {
@@ -65,7 +74,7 @@ public class Main {
   public static void main(String[] args) {
     try {
       Map<String, Image> imageMap = new HashMap<>();
-      List<String> commands = Files.readAllLines(Paths.get("C:/Users/Kavish Desai/OneDrive/Desktop/ProgramDesignParadigm/Assignment 4/Assignment 4/src/output.txt"));
+      List<String> commands = Files.readAllLines(Paths.get("C:/Users/Kavish Desai/OneDrive/Desktop/ProgramDesignParadigm/Assignments/ProgramDesignParadigm/Assignment 4/src/output.txt"));
 
       for (String command : commands) {
         String[] parts = command.split(" ");

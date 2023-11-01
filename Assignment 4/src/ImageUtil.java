@@ -1,10 +1,14 @@
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Scanner;
 import java.io.FileNotFoundException;
 import java.io.FileInputStream;
 
 
 /**
- * This class contains utility methods to read a PPM image from file and simply print its contents. Feel free to change this method 
+ * This class contains utility methods to read a PPM image from file and simply print its contents. Feel free to change this method
  *  as required.
  */
 public class ImageUtil {
@@ -12,65 +16,74 @@ public class ImageUtil {
   /**
    * Read an image file in the PPM format and print the colors.
    *
-   * @param filename the path of the file. 
+   * @param filename the path of the file.
    */
-  public static void readPPM(String filename) {
+  public static BufferedImage readPPM(String filename) throws IOException {
     Scanner sc;
-    
+
     try {
-        sc = new Scanner(new FileInputStream(filename));
-    }
-    catch (FileNotFoundException e) {
-        System.out.println("File "+filename+ " not found!");
-        return;
+      sc = new Scanner(new FileInputStream(filename));
+    } catch (FileNotFoundException e) {
+      throw new IOException("File " + filename + " not found!", e);
     }
     StringBuilder builder = new StringBuilder();
-    //read the file line by line, and populate a string. This will throw away any comment lines
+
     while (sc.hasNextLine()) {
-        String s = sc.nextLine();
-        if (s.charAt(0)!='#') {
-            builder.append(s+System.lineSeparator());
-        }
+      String s = sc.nextLine();
+      if (s.charAt(0) != '#') {
+        builder.append(s + System.lineSeparator());
+      }
     }
-    
-    //now set up the scanner to read from the string we just built
+
     sc = new Scanner(builder.toString());
 
-    String token; 
+    String token = sc.next();
 
-    token = sc.next();
     if (!token.equals("P3")) {
-        System.out.println("Invalid PPM file: plain RAW file should begin with P3");
+      throw new IOException("Invalid PPM file: plain RAW file should begin with P3");
     }
+
     int width = sc.nextInt();
-    System.out.println("Width of image: "+width);
     int height = sc.nextInt();
-    System.out.println("Height of image: "+height);
     int maxValue = sc.nextInt();
-    System.out.println("Maximum value of a color in this file (usually 255): "+maxValue);
-    
-    for (int i=0;i<height;i++) {
-        for (int j=0;j<width;j++) {
-            int r = sc.nextInt();
-            int g = sc.nextInt();
-            int b = sc.nextInt();
-            System.out.println("Color of pixel ("+j+","+i+"): "+ r+","+g+","+b);
-        }
+
+    if (maxValue > 255) {
+      throw new IOException("PPM file has a maximum color value greater than 255 which is unsupported.");
     }
+
+    BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
+    for (int i = 0; i < height; i++) {
+      for (int j = 0; j < width; j++) {
+        int r = sc.nextInt();
+        int g = sc.nextInt();
+        int b = sc.nextInt();
+        image.setRGB(j, i, new Color(r, g, b).getRGB());
+      }
+    }
+
+    return image;
   }
 
-  //demo main
-  public static void main(String []args) {
-      String filename;
-      
-      if (args.length>0) {
-          filename = args[0];
+  public static void writePPM(BufferedImage image, String filename) throws IOException {
+    try (FileWriter writer = new FileWriter(filename)) {
+      int width = image.getWidth();
+      int height = image.getHeight();
+
+      writer.write("P3\n");
+      writer.write(width + " " + height + "\n");
+      writer.write("255\n");
+
+      for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+          Color color = new Color(image.getRGB(x, y));
+          writer.write(color.getRed() + " ");
+          writer.write(color.getGreen() + " ");
+          writer.write(color.getBlue() + " ");
+        }
+        writer.write("\n");
       }
-      else {
-          filename = "sample.ppm";
-      }
-      
-      ImageUtil.readPPM(filename);
+    }
   }
 }
 
