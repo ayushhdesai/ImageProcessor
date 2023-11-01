@@ -10,13 +10,12 @@ import java.io.FileInputStream;
 
 
 /**
- * This class contains utility methods to read a PPM image from file and simply print its contents. Feel free to change this method
- *  as required.
+ * This class contains utility methods to read and write a PPM image.
  */
 public class ImageUtil {
 
   /**
-   * Read an image file in the PPM format and print the colors.
+   * Read an image file in the PPM format from a given path.
    *
    * @param filename the path of the file.
    */
@@ -50,7 +49,7 @@ public class ImageUtil {
     int maxValue = sc.nextInt();
 
     if (maxValue > 255) {
-      throw new IOException("PPM file has a maximum color value greater than 255 which is unsupported.");
+      throw new IOException("Unsupported range.");
     }
 
     BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -67,6 +66,11 @@ public class ImageUtil {
     return image;
   }
 
+  /**
+   * Write an image file in the PPM format to the given path.
+   *
+   * @param filename the path of the file.
+   */
   public static void writePPM(BufferedImage image, String filename) throws IOException {
     try (FileWriter writer = new FileWriter(filename)) {
       int width = image.getWidth();

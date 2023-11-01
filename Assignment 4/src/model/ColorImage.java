@@ -1,20 +1,35 @@
 package model;
 
+/**
+ * This class represents a color image with pixels arranged in 2D array.
+ */
 public class ColorImage implements Image {
 
   protected Pixel[][] pixels;
 
+  /**
+   * Constructor that initialises the image with the give pixels.
+   *
+   * @param pixels the 2D array of pixels to set an image.
+   */
   public ColorImage(Pixel[][] pixels) {
     this.pixels = pixels;
   }
 
-  public Pixel[][] getPixels(){
+  /**
+   * Retrieves the pixels of the image.
+   *
+   * @return The 2D array of pixels.
+   */
+  public Pixel[][] getPixels() {
     return this.pixels;
   }
 
-
   @Override
   public Image visualizeRedComponent() {
+    if (this.pixels == null) {
+      throw new IllegalStateException("Pixels array is null");
+    }
     Pixel[][] redComponentPixels = new ColorPixel[this.pixels.length][this.pixels[0].length];
     for (int i = 0; i < pixels.length; i++) {
       for (int j = 0; j < pixels[i].length; j++) {
@@ -28,6 +43,9 @@ public class ColorImage implements Image {
 
   @Override
   public Image visualizeGreenComponent() {
+    if (this.pixels == null) {
+      throw new IllegalStateException("Pixels array is null");
+    }
     Pixel[][] greenComponentPixels = new ColorPixel[this.pixels.length][this.pixels[0].length];
     for (int i = 0; i < pixels.length; i++) {
       for (int j = 0; j < pixels[i].length; j++) {
@@ -41,6 +59,9 @@ public class ColorImage implements Image {
 
   @Override
   public Image visualizeBlueComponent() {
+    if (this.pixels == null) {
+      throw new IllegalStateException("Pixels array is null");
+    }
     Pixel[][] blueComponentPixels = new ColorPixel[this.pixels.length][this.pixels[0].length];
     for (int i = 0; i < pixels.length; i++) {
       for (int j = 0; j < pixels[i].length; j++) {
@@ -52,7 +73,6 @@ public class ColorImage implements Image {
     return new ColorImage(blueComponentPixels);
   }
 
-  // Not tested
   @Override
   public Image getValue() {
     Pixel[][] valuePixels = new GreyPixel[this.pixels.length][this.pixels[0].length];
@@ -67,7 +87,6 @@ public class ColorImage implements Image {
     return new GreyscaleImage(valuePixels);
   }
 
-  // Not tested
   @Override
   public Image getIntensity() {
     Pixel[][] intensityPixels = new GreyPixel[this.pixels.length][this.pixels[0].length];
@@ -84,7 +103,6 @@ public class ColorImage implements Image {
     return new GreyscaleImage(intensityPixels);
   }
 
-  // Not tested
   @Override
   public Image getLuma() {
     Pixel[][] lumaPixels = new GreyPixel[this.pixels.length][this.pixels[0].length];
@@ -175,7 +193,7 @@ public class ColorImage implements Image {
   @Override
   public Image filter(float[][] kernel) {
 
-    if(kernel.length%2==0 || kernel[0].length%2==0){
+    if (kernel.length % 2 == 0 || kernel[0].length % 2 == 0) {
       throw new IllegalArgumentException("Kernel cannot have event length");
     }
 
@@ -186,26 +204,26 @@ public class ColorImage implements Image {
     Pixel[][] resultantGreenChannelPixels = this.getGreenChannel().getPixels();
     Pixel[][] resultantBlueChannelPixels = this.getBlueChannel().getPixels();
 
-    Pixel[][] currentRedChannelPixels = this.getRedChannel().getPixels();
-    Pixel[][] currentGreenChannelPixels = this.getGreenChannel().getPixels();
-    Pixel[][] currentBlueChannelPixels = this.getBlueChannel().getPixels();
+    Pixel[][] currRedChannelPixels = this.getRedChannel().getPixels();
+    Pixel[][] currGreenChannelPixels = this.getGreenChannel().getPixels();
+    Pixel[][] currBlueChannelPixels = this.getBlueChannel().getPixels();
 
-    int midrow = kernel.length/2;
-    int midcol = kernel[0].length/2;
+    int midrow = kernel.length / 2;
+    int midcol = kernel[0].length / 2;
 
-    for(int i=0; i<pixels.length; i++){
-      for(int j=0; j<pixels[i].length; j++){
-        int sumred =0, sumgreen=0, sumblue=0;
-        for(int x=0; x< kernel.length; x++){
-          for(int y=0; y<kernel[x].length; y++){
+    for (int i = 0; i < pixels.length; i++) {
+      for (int j = 0; j < pixels[i].length; j++) {
+        int sumred = 0, sumgreen = 0, sumblue = 0;
+        for (int x = 0; x < kernel.length; x++) {
+          for (int y = 0; y < kernel[x].length; y++) {
 
             int rowIndex = i - midrow + x;
             int colIndex = j - midcol + y;
 
             if (rowIndex >= 0 && rowIndex < rows && colIndex >= 0 && colIndex < cols) {
-              sumred += currentRedChannelPixels[rowIndex][colIndex].getRedValue() * kernel[x][y];
-              sumgreen += currentGreenChannelPixels[rowIndex][colIndex].getGreenValue() * kernel[x][y];
-              sumblue += currentBlueChannelPixels[rowIndex][colIndex].getBlueValue() * kernel[x][y];
+              sumred += currRedChannelPixels[rowIndex][colIndex].getRedValue() * kernel[x][y];
+              sumgreen += currGreenChannelPixels[rowIndex][colIndex].getGreenValue() * kernel[x][y];
+              sumblue += currBlueChannelPixels[rowIndex][colIndex].getBlueValue() * kernel[x][y];
             }
           }
         }
@@ -225,7 +243,7 @@ public class ColorImage implements Image {
 
   @Override
   public Image linearTransform(float[][] mat) {
-    if(mat.length!=3 || mat[0].length!=3) {
+    if (mat.length != 3 || mat[0].length != 3) {
       throw new IllegalArgumentException("Improper kernel matrix size");
     }
     Pixel[][] transformedPixels = new ColorPixel[this.pixels.length][this.pixels[0].length];

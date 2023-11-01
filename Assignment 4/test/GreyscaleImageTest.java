@@ -1,8 +1,16 @@
 import org.junit.Before;
 import org.junit.Test;
 
+import model.GreyPixel;
+import model.GreyscaleImage;
+import model.Image;
+import model.Pixel;
+
 import static org.junit.Assert.assertEquals;
 
+/**
+ * Junit test file for GreyscaleImage class.
+ */
 public class GreyscaleImageTest {
 
   private GreyscaleImage greyscaleImage;
@@ -21,8 +29,6 @@ public class GreyscaleImageTest {
   @Test
   public void testVisualizeRedComponent() {
     Image redCompImage = greyscaleImage.visualizeRedComponent();
-
-
     for (int i = 0; i < samplePixels.length; i++) {
       for (int j = 0; j < samplePixels[i].length; j++) {
         assertEquals(samplePixels[i][j].getRedValue(), redCompImage.getPixels()[i][j].getRedValue());

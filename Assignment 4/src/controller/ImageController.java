@@ -4,8 +4,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,9 +17,20 @@ import model.GreyscaleImage;
 import model.Image;
 import model.Pixel;
 
+/**
+ * This class acts as the controller tp run script commands.
+ */
 public class ImageController {
 
   Map<String, model.Image> imageMap = new HashMap<>();
+
+  /**
+   * Load an image from the given path.
+   *
+   * @param path the path where the image is located.
+   * @return BufferedImage of the loaded image.
+   * @throws IOException if the image can't be loaded.
+   */
   public static BufferedImage loadImage(String path) throws IOException {
     String extension = path.substring(path.lastIndexOf(".") + 1);
     if (extension.equalsIgnoreCase("ppm")) {
@@ -35,7 +44,14 @@ public class ImageController {
     }
   }
 
-
+  /**
+   * Save a given BufferedImage to a file.
+   *
+   * @param image  the image to save.
+   * @param format the format in which to save the image.
+   * @param path   the location where to save the image.
+   * @throws IOException if the image can't be saved.
+   */
   public static void saveImage(BufferedImage image, String format, String path) throws IOException {
     if (format.equalsIgnoreCase("ppm")) {
       ImageUtil.writePPM(image, path);
@@ -44,6 +60,12 @@ public class ImageController {
     }
   }
 
+  /**
+   * Convert a BufferedImage into a 2D array of Pixels.
+   *
+   * @param image the image to convert.
+   * @return 2D array of Pixels.
+   */
   public static Pixel[][] convertToPixels(BufferedImage image) {
     int width = image.getWidth();
     int height = image.getHeight();
@@ -58,6 +80,12 @@ public class ImageController {
     return pixels;
   }
 
+  /**
+   * Convert a 2D array of Pixels into a BufferedImage.
+   *
+   * @param pixels the 2D array of Pixels to convert.
+   * @return BufferedImage of the Pixels.
+   */
   public static BufferedImage convertToBufferedImage(Pixel[][] pixels) {
     int height = pixels.length;
     int width = pixels[0].length;
@@ -82,15 +110,23 @@ public class ImageController {
     return image;
   }
 
+  /**
+   * Process a list of script commands.
+   *
+   * @param commands list of commands to be processed.
+   * @throws IOException if there's an error while command segregation.
+   */
   public void processCommands(List<String> commands) throws IOException {
-
-      for (String command : commands) {
-
-        processCommand(command);
-      }
-
+    for (String command : commands) {
+      processCommand(command);
+    }
   }
 
+  /**
+   * Interactively process image commands entered by the user.
+   *
+   * @throws IOException if there's an error while command processing.
+   */
   public void interactiveMode() throws IOException {
     Scanner scanner = new Scanner(System.in);
     while (true) {
@@ -103,6 +139,13 @@ public class ImageController {
       processCommand(userInput);
     }
   }
+
+  /**
+   * Process a script command using a switch case.
+   *
+   * @param command the command given.
+   * @throws IOException if there's an error while processing the command.
+   */
   public void processCommand(String command) throws IOException {
 
     String[] parts = command.split(" ");

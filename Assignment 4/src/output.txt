@@ -15,6 +15,6 @@ save C:/Users/ssuvi/Desktop/NortheasternAcademic/Sem3_Fall2023/PDP/Test/brighten
 vertical-flip loadedImage verticalFlip
 save C:/Users/ssuvi/Desktop/NortheasternAcademic/Sem3_Fall2023/PDP/Test/verticalFlip.jpeg verticalFlip
 horizontal-flip loadedImage horizontalFlip
-save C:/Users/ssuvi/Desktop/NortheasternAcademic/Sem3_Fall2023/PDP/Test/horizontalFlip.jpeg horizontalFlip
+save C:/Users/ssuvi/Desktop/No  rtheasternAcademic/Sem3_Fall2023/PDP/Test/horizontalFlip.jpeg horizontalFlip
 sepia loadedImage transformedImage
 save C:/Users/ssuvi/Desktop/NortheasternAcademic/Sem3_Fall2023/PDP/Test/sepia.jpeg transformedImage
