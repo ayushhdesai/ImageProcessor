@@ -1,0 +1,9 @@
+load C:/Users/Ayush/abc.png loadedImage
+brighten 50 loadedImage brightenImage
+vertical-flip loadedImage verticalFlip
+horizontal-flip loadedImage horizontalFlip
+linear-transform loadedImage transformedImage
+save jpeg C:/Users/Ayush/linearTransform.jpeg transformedImage
+save jpeg C:/Users/Ayush/brightenImage.jpeg brightenImage
+save jpeg C:/Users/Ayush/verticalFlip.jpeg verticalFlip
+save jpeg C:/Users/Ayush/horizontalFlip.jpeg horizontalFlip
