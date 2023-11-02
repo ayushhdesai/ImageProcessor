@@ -122,8 +122,8 @@ public class ColorImage implements Image {
 
   @Override
   public Image combineChannel(Image redImage, Image greenImage, Image blueImage) {
-    if (!(redImage instanceof GreyscaleImage) || !(greenImage instanceof GreyscaleImage) ||
-            !(blueImage instanceof GreyscaleImage)) {
+    if (!(redImage instanceof GreyscaleImage) || !(greenImage instanceof GreyscaleImage)
+            || !(blueImage instanceof GreyscaleImage)) {
       throw new IllegalArgumentException("Component type is not similar.");
     }
 
@@ -213,7 +213,9 @@ public class ColorImage implements Image {
 
     for (int i = 0; i < pixels.length; i++) {
       for (int j = 0; j < pixels[i].length; j++) {
-        int sumred = 0, sumgreen = 0, sumblue = 0;
+        int sumred = 0;
+        int sumgreen = 0;
+        int sumblue = 0;
         for (int x = 0; x < kernel.length; x++) {
           for (int y = 0; y < kernel[x].length; y++) {
 

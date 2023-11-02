@@ -22,12 +22,12 @@ public class ColorImageTest {
   @Before
   public void setUp() {
     samplePixels = new ColorPixel[][]{
-            {new ColorPixel(255, 0, 0), new ColorPixel(0, 255, 0),
-                    new ColorPixel(0, 0, 255)},
-            {new ColorPixel(128, 128, 128),
-                    new ColorPixel(255, 255, 255), new ColorPixel(0, 0, 0)},
-            {new ColorPixel(85, 170, 255),
-                    new ColorPixel(170, 85, 0), new ColorPixel(255, 255, 0)}
+            {new ColorPixel(255, 0, 0), new ColorPixel(0, 255,
+                    0), new ColorPixel(0, 0, 255)},
+            {new ColorPixel(128, 128, 128), new ColorPixel(255, 255,
+                    255), new ColorPixel(0, 0, 0)},
+            {new ColorPixel(85, 170, 255), new ColorPixel(170, 85,
+                    0), new ColorPixel(255, 255, 0)}
     };
     testImage = new ColorImage(samplePixels);
   }
@@ -43,7 +43,8 @@ public class ColorImageTest {
     ColorImage redComponent = (ColorImage) testImage.visualizeRedComponent();
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 3; j++) {
-        assertEquals(samplePixels[i][j].getRedValue(), redComponent.getPixels()[i][j].getRedValue());
+        assertEquals(samplePixels[i][j].getRedValue(),
+                redComponent.getPixels()[i][j].getRedValue());
         assertEquals(0, redComponent.getPixels()[i][j].getGreenValue());
         assertEquals(0, redComponent.getPixels()[i][j].getBlueValue());
       }
@@ -62,7 +63,8 @@ public class ColorImageTest {
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 3; j++) {
         assertEquals(0, greenComponent.getPixels()[i][j].getRedValue());
-        assertEquals(samplePixels[i][j].getGreenValue(), greenComponent.getPixels()[i][j].getGreenValue());
+        assertEquals(samplePixels[i][j].getGreenValue(),
+                greenComponent.getPixels()[i][j].getGreenValue());
         assertEquals(0, greenComponent.getPixels()[i][j].getBlueValue());
       }
     }
@@ -81,7 +83,8 @@ public class ColorImageTest {
       for (int j = 0; j < 3; j++) {
         assertEquals(0, blueComponent.getPixels()[i][j].getRedValue());
         assertEquals(0, blueComponent.getPixels()[i][j].getGreenValue());
-        assertEquals(samplePixels[i][j].getBlueValue(), blueComponent.getPixels()[i][j].getBlueValue());
+        assertEquals(samplePixels[i][j].getBlueValue(),
+                blueComponent.getPixels()[i][j].getBlueValue());
       }
     }
   }
@@ -214,9 +217,12 @@ public class ColorImageTest {
 
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 3; j++) {
-        assertEquals(expectedRedValues[i][j], verticalBrightenImg.getPixels()[i][j].getRedValue());
-        assertEquals(expectedGreenValues[i][j], verticalBrightenImg.getPixels()[i][j].getGreenValue());
-        assertEquals(expectedBlueValues[i][j], verticalBrightenImg.getPixels()[i][j].getBlueValue());
+        assertEquals(expectedRedValues[i][j],
+                verticalBrightenImg.getPixels()[i][j].getRedValue());
+        assertEquals(expectedGreenValues[i][j],
+                verticalBrightenImg.getPixels()[i][j].getGreenValue());
+        assertEquals(expectedBlueValues[i][j],
+                verticalBrightenImg.getPixels()[i][j].getBlueValue());
       }
     }
   }
@@ -276,9 +282,12 @@ public class ColorImageTest {
         int oldGreen = samplePixels[i][j].getGreenValue();
         int oldBlue = samplePixels[i][j].getBlueValue();
 
-        expectedRedValues[i][j] = (int) Math.min(255, Math.max(0, mat[0][0] * oldRed + mat[0][1] * oldGreen + mat[0][2] * oldBlue));
-        expectedGreenValues[i][j] = (int) Math.min(255, Math.max(0, mat[1][0] * oldRed + mat[1][1] * oldGreen + mat[1][2] * oldBlue));
-        expectedBlueValues[i][j] = (int) Math.min(255, Math.max(0, mat[2][0] * oldRed + mat[2][1] * oldGreen + mat[2][2] * oldBlue));
+        expectedRedValues[i][j] = (int) Math.min(255,
+                Math.max(0, mat[0][0] * oldRed + mat[0][1] * oldGreen + mat[0][2] * oldBlue));
+        expectedGreenValues[i][j] = (int) Math.min(255,
+                Math.max(0, mat[1][0] * oldRed + mat[1][1] * oldGreen + mat[1][2] * oldBlue));
+        expectedBlueValues[i][j] = (int) Math.min(255,
+                Math.max(0, mat[2][0] * oldRed + mat[2][1] * oldGreen + mat[2][2] * oldBlue));
       }
     }
 
@@ -311,9 +320,12 @@ public class ColorImageTest {
         int oldGreen = samplePixels[i][j].getGreenValue();
         int oldBlue = samplePixels[i][j].getBlueValue();
 
-        expectedRedValues[i][j] = (int) Math.min(255, Math.max(0, mat[0][0] * oldRed + mat[0][1] * oldGreen + mat[0][2] * oldBlue));
-        expectedGreenValues[i][j] = (int) Math.min(255, Math.max(0, mat[1][0] * oldRed + mat[1][1] * oldGreen + mat[1][2] * oldBlue));
-        expectedBlueValues[i][j] = (int) Math.min(255, Math.max(0, mat[2][0] * oldRed + mat[2][1] * oldGreen + mat[2][2] * oldBlue));
+        expectedRedValues[i][j] = (int) Math.min(255,
+                Math.max(0, mat[0][0] * oldRed + mat[0][1] * oldGreen + mat[0][2] * oldBlue));
+        expectedGreenValues[i][j] = (int) Math.min(255,
+                Math.max(0, mat[1][0] * oldRed + mat[1][1] * oldGreen + mat[1][2] * oldBlue));
+        expectedBlueValues[i][j] = (int) Math.min(255,
+                Math.max(0, mat[2][0] * oldRed + mat[2][1] * oldGreen + mat[2][2] * oldBlue));
       }
     }
 
@@ -346,9 +358,12 @@ public class ColorImageTest {
         int oldGreen = samplePixels[i][j].getGreenValue();
         int oldBlue = samplePixels[i][j].getBlueValue();
 
-        expectedRedValues[i][j] = (int) Math.min(255, Math.max(0, mat[0][0] * oldRed + mat[0][1] * oldGreen + mat[0][2] * oldBlue));
-        expectedGreenValues[i][j] = (int) Math.min(255, Math.max(0, mat[1][0] * oldRed + mat[1][1] * oldGreen + mat[1][2] * oldBlue));
-        expectedBlueValues[i][j] = (int) Math.min(255, Math.max(0, mat[2][0] * oldRed + mat[2][1] * oldGreen + mat[2][2] * oldBlue));
+        expectedRedValues[i][j] = (int) Math.min(255,
+                Math.max(0, mat[0][0] * oldRed + mat[0][1] * oldGreen + mat[0][2] * oldBlue));
+        expectedGreenValues[i][j] = (int) Math.min(255,
+                Math.max(0, mat[1][0] * oldRed + mat[1][1] * oldGreen + mat[1][2] * oldBlue));
+        expectedBlueValues[i][j] = (int) Math.min(255,
+                Math.max(0, mat[2][0] * oldRed + mat[2][1] * oldGreen + mat[2][2] * oldBlue));
       }
     }
 
@@ -388,9 +403,12 @@ public class ColorImageTest {
 
     for (int i = 0; i < expectedPixels.length; i++) {
       for (int j = 0; j < expectedPixels[i].length; j++) {
-        assertEquals(expectedPixels[i][j].getRedValue(), resultImage.getPixels()[i][j].getRedValue());
-        assertEquals(expectedPixels[i][j].getGreenValue(), resultImage.getPixels()[i][j].getGreenValue());
-        assertEquals(expectedPixels[i][j].getBlueValue(), resultImage.getPixels()[i][j].getBlueValue());
+        assertEquals(expectedPixels[i][j].getRedValue(),
+                resultImage.getPixels()[i][j].getRedValue());
+        assertEquals(expectedPixels[i][j].getGreenValue(),
+                resultImage.getPixels()[i][j].getGreenValue());
+        assertEquals(expectedPixels[i][j].getBlueValue(),
+                resultImage.getPixels()[i][j].getBlueValue());
       }
     }
   }
@@ -434,8 +452,8 @@ public class ColorImageTest {
   @Test
   public void testGetRedChannel() {
     Pixel[][] pixels = {
-            { new ColorPixel(255, 100, 50), new ColorPixel(10, 20, 30) },
-            { new ColorPixel(40, 50, 60), new ColorPixel(70, 80, 90) }
+            {new ColorPixel(255, 100, 50), new ColorPixel(10, 20, 30)},
+            {new ColorPixel(40, 50, 60), new ColorPixel(70, 80, 90)}
     };
 
     ColorImage img = new ColorImage(pixels);
@@ -459,8 +477,8 @@ public class ColorImageTest {
   @Test
   public void testGetBlueChannel() {
     Pixel[][] pixels = {
-            { new ColorPixel(255, 100, 50), new ColorPixel(10, 20, 30) },
-            { new ColorPixel(40, 50, 60), new ColorPixel(70, 80, 90) }
+            {new ColorPixel(255, 100, 50), new ColorPixel(10, 20, 30)},
+            {new ColorPixel(40, 50, 60), new ColorPixel(70, 80, 90)}
     };
 
     ColorImage img = new ColorImage(pixels);
@@ -484,8 +502,8 @@ public class ColorImageTest {
   @Test
   public void testGetGreenChannel() {
     Pixel[][] pixels = {
-            { new ColorPixel(255, 100, 50), new ColorPixel(10, 20, 30) },
-            { new ColorPixel(40, 50, 60), new ColorPixel(70, 80, 90) }
+            {new ColorPixel(255, 100, 50), new ColorPixel(10, 20, 30)},
+            {new ColorPixel(40, 50, 60), new ColorPixel(70, 80, 90)}
     };
 
     ColorImage img = new ColorImage(pixels);

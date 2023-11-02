@@ -31,7 +31,8 @@ public class GreyscaleImageTest {
     Image redCompImage = greyscaleImage.visualizeRedComponent();
     for (int i = 0; i < samplePixels.length; i++) {
       for (int j = 0; j < samplePixels[i].length; j++) {
-        assertEquals(samplePixels[i][j].getRedValue(), redCompImage.getPixels()[i][j].getRedValue());
+        assertEquals(samplePixels[i][j].getRedValue(),
+                redCompImage.getPixels()[i][j].getRedValue());
       }
     }
   }

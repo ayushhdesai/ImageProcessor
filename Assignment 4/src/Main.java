@@ -10,6 +10,12 @@ import controller.ImageController;
  */
 public class Main {
 
+  /**
+   * The main method to run the application.
+   *
+   * @param args to run a file or via command line.
+   * @throws IOException in case of an issue.
+   */
   public static void main(String[] args) throws IOException {
     ImageController imageController = new ImageController();
 

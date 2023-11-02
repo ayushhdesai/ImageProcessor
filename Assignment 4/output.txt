@@ -1,0 +1,32 @@
+load C:/Users/Ayush/res/test.jpg loadImg
+red-component loadImg redImg
+save C:/Users/Ayush/res/test-redComp.jpg redImg
+blue-component loadImg blueImg
+save C:/Users/Ayush/res/test-blueComp.jpg blueImg
+green-component loadImg greenImg
+save C:/Users/Ayush/res/test-greenComp.jpg greenImg
+horizontal-flip loadImg horizontalFlip
+save C:/Users/Ayush/res/test-horizontal.jpg horizontalFlip
+vertical-flip loadImg verticalFlip
+save C:/Users/Ayush/res/test-vertical.jpg verticalFlip
+vertical-flip horizontalFlip hvFlip
+save C:/Users/Ayush/res/test-horizontal-vertical.jpg hvFlip
+value loadImg val
+save C:/Users/Ayush/res/test-value.jpg val
+intensity loadImg val1
+save C:/Users/Ayush/res/test-intensity.jpg val1
+luma loadImg val2
+save C:/Users/Ayush/res/test-luma.jpg val2
+brighten 20 loadImg brighten
+save C:/Users/Ayush/res/test-brighten.jpg brighten
+greyscale loadImg grey
+save C:/Users/Ayush/res/test-grey.jpg grey
+blur loadImg blur
+save C:/Users/Ayush/res/test-blur.jpg blur
+sharpen loadImg sharp
+save C:/Users/Ayush/res/test-sharp.jpg sharp
+sepia loadImg sepia
+save C:/Users/Ayush/res/test-sepia.jpg sepia
+rgb-split loadImg test-red test-green test-blue
+rgb-combine test-red-tint test-red test-green test-blue
+save C:/Users/Ayush/res/test-combine.jpg test-red-tint

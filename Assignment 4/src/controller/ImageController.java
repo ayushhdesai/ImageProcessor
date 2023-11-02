@@ -1,6 +1,6 @@
 package controller;
 
-import java.awt.*;
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +16,8 @@ import model.ColorPixel;
 import model.GreyscaleImage;
 import model.Image;
 import model.Pixel;
+
+import static java.lang.System.exit;
 
 /**
  * This class acts as the controller tp run script commands.
@@ -201,7 +203,8 @@ public class ImageController {
 
       case "intensity":
         Image imageToIntensityTransform = imageMap.get(parts[1]);
-        GreyscaleImage intensityComponent = (GreyscaleImage) imageToIntensityTransform.getIntensity();
+        GreyscaleImage intensityComponent =
+                (GreyscaleImage) imageToIntensityTransform.getIntensity();
         imageMap.put(parts[2], intensityComponent);
         break;
 
@@ -219,7 +222,8 @@ public class ImageController {
         Image redGreyImage = imageMap.get(parts[2]);
         Image greenGreyImage = imageMap.get(parts[3]);
         Image blueGreyImage = imageMap.get(parts[4]);
-        Image combinedImage = redGreyImage.combineChannel(redGreyImage, greenGreyImage, blueGreyImage);
+        Image combinedImage = redGreyImage.combineChannel(redGreyImage,
+                greenGreyImage, blueGreyImage);
         imageMap.put(parts[1], combinedImage);
         break;
 
@@ -273,7 +277,8 @@ public class ImageController {
       case "save":
         String filePath = parts[1];
         String extension = filePath.substring(filePath.lastIndexOf(".") + 1);
-        BufferedImage imgToSave = convertToBufferedImage(((ColorImage) imageMap.get(parts[2])).getPixels());
+        BufferedImage imgToSave =
+                convertToBufferedImage(((ColorImage) imageMap.get(parts[2])).getPixels());
         saveImage(imgToSave, extension, parts[1]);
         break;
 
@@ -283,6 +288,9 @@ public class ImageController {
         Image brightenedImage = imageToBrighten.brighten(alpha);
         imageMap.put(parts[3], brightenedImage);
         break;
+
+      default:
+        exit(0);
     }
 
   }
