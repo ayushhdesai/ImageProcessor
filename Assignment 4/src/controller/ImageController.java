@@ -160,6 +160,21 @@ public class ImageController {
         imageMap.put(parts[2], new ColorImage(pixels));
         break;
 
+
+      case "histogram":
+        Image imageForHistogram = imageMap.get(parts[1]);
+        Image histogramImage = imageForHistogram.getHistogram();
+        imageMap.put(parts[2], histogramImage);
+        break;
+
+
+//      case "color-correct":
+//        Image imageForColorCorrect = imageMap.get(parts[1]);
+//        Image correctedImage = imageForColorCorrect.colorCorrect();
+//        imageMap.put(parts[2], correctedImage);
+//        break;
+
+
       case "sepia":
         ColorImage imageToTransform = (ColorImage) imageMap.get(parts[1]);
         float[][] mat = {

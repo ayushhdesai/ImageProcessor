@@ -1,5 +1,12 @@
 package model;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import java.util.Map;
+
+import controller.ImageController;
+
 /**
  * This class represents a color image with pixels arranged in 2D array.
  */
@@ -24,6 +31,118 @@ public class ColorImage implements Image {
   public Pixel[][] getPixels() {
     return this.pixels;
   }
+
+  @Override
+  public Image getHistogram() {
+    Image redChannel = this.getRedChannel();
+    Pixel[][] redPixels = redChannel.getPixels();
+
+    Image greenChannel = this.getGreenChannel();
+    Pixel[][] greenPixels = greenChannel.getPixels();
+
+    Image blueChannel = this.getBlueChannel();
+    Pixel[][] bluePixels = blueChannel.getPixels();
+
+    HashMap<Integer, Integer> redChannelMap = new HashMap<>();
+    HashMap<Integer, Integer> greenChannelMap = new HashMap<>();
+    HashMap<Integer, Integer> blueChannelMap = new HashMap<>();
+
+    for(int i=0; i<redPixels.length; i++){
+      for(int j=0; j<redPixels[i].length; j++){
+          redChannelMap.put(redPixels[i][j].getRedValue(),
+                  redChannelMap.getOrDefault(redPixels[i][j].getRedValue(),0)+1);
+
+        greenChannelMap.put(greenPixels[i][j].getGreenValue(),
+                greenChannelMap.getOrDefault(greenPixels[i][j].getGreenValue(),0)+1);
+
+        blueChannelMap.put(bluePixels[i][j].getBlueValue(),
+                blueChannelMap.getOrDefault(bluePixels[i][j].getBlueValue(),0)+1);
+      }
+    }
+
+    int maxWidth = 256;
+    int maxHeight = 256;
+
+    double maxRedValue = getMaxValue(redChannelMap);
+    double maxGreenValue = getMaxValue(greenChannelMap);
+    double maxBlueValue = getMaxValue(blueChannelMap);
+
+    double maxFrequency = Math.max(Math.max(maxRedValue, maxGreenValue), maxBlueValue);
+
+    double xScale = (maxWidth - 50.0) / Math.max(redChannelMap.size(), Math.max(greenChannelMap.size(), blueChannelMap.size()))*1.25;
+    double yScale = (maxHeight - 50.0) / maxFrequency*1.25;
+
+
+    BufferedImage image = new BufferedImage(maxWidth, maxHeight, BufferedImage.TYPE_INT_RGB);
+    Graphics2D graphics = image.createGraphics();
+
+
+    graphics.setColor(Color.WHITE);
+    graphics.fillRect(0, 0, maxWidth, maxHeight);
+    drawGrid(graphics, xScale, yScale);
+
+    graphics.setColor(Color.RED);
+    drawLineGraph(graphics, redChannelMap, xScale, yScale, maxWidth, maxHeight);
+
+
+    graphics.setColor(Color.GREEN);
+    drawLineGraph(graphics, greenChannelMap, xScale, yScale, maxWidth, maxHeight);
+
+
+    graphics.setColor(Color.BLUE);
+    drawLineGraph(graphics, blueChannelMap, xScale, yScale, maxWidth, maxHeight);
+
+
+    return new ColorImage(ImageController.convertToPixels(image));
+  }
+
+  private void drawLineGraph(Graphics2D graphics, HashMap<Integer, Integer> channelMap,
+                             double xScale, double yScale, int maxWidth, int maxHeight) {
+    int prevX = 0;
+    int prevY = maxHeight;
+
+
+    for (int x : channelMap.keySet()) {
+      int y = (int) (maxHeight - channelMap.get(x) * yScale);
+      graphics.drawLine(prevX, prevY, (int) (x * xScale), y);
+      prevX = (int) (x * xScale);
+      prevY = y;
+    }
+  }
+
+
+  private void drawGrid(Graphics2D graphics, double xScale, double yScale) {
+    graphics.setColor(Color.LIGHT_GRAY);
+    int maxWidth = 256;
+    int maxHeight = 256;
+
+
+    for (int i = 0; i < maxWidth; i += 10) {
+      graphics.drawLine(i, 0, i, maxHeight);
+    }
+
+    for (int i = 0; i < maxHeight; i += 10) {
+      graphics.drawLine(0, i, maxWidth, i);
+    }
+
+    graphics.setColor(Color.BLACK);
+    graphics.drawLine(0, maxHeight, maxWidth, maxHeight);
+    graphics.drawLine(0, 0, 0, maxHeight);
+  }
+
+  private static int getMaxValue(Map<Integer, Integer> data) {
+    int maxValue = Integer.MIN_VALUE;
+    for (int value : data.values()) {
+      if (value > maxValue) {
+        maxValue = value;
+      }
+    }
+    return maxValue;
+  }
+
+
+
+
 
   @Override
   public Image visualizeRedComponent() {

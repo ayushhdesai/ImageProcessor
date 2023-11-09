@@ -122,4 +122,6 @@ public interface Image {
    */
   Pixel[][] getPixels();
 
+  Image getHistogram();
+
 }
