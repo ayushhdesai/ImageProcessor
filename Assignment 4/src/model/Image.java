@@ -124,4 +124,6 @@ public interface Image {
 
   Image getHistogram();
 
+  Image colorCorrect();
+
 }

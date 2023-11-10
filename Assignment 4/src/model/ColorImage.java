@@ -32,33 +32,66 @@ public class ColorImage implements Image {
     return this.pixels;
   }
 
-  @Override
-  public Image getHistogram() {
+  private HashMap<Integer,Integer> getRedFrequencyMap(){
     Image redChannel = this.getRedChannel();
     Pixel[][] redPixels = redChannel.getPixels();
 
-    Image greenChannel = this.getGreenChannel();
-    Pixel[][] greenPixels = greenChannel.getPixels();
-
-    Image blueChannel = this.getBlueChannel();
-    Pixel[][] bluePixels = blueChannel.getPixels();
-
     HashMap<Integer, Integer> redChannelMap = new HashMap<>();
-    HashMap<Integer, Integer> greenChannelMap = new HashMap<>();
-    HashMap<Integer, Integer> blueChannelMap = new HashMap<>();
 
     for(int i=0; i<redPixels.length; i++){
       for(int j=0; j<redPixels[i].length; j++){
-          redChannelMap.put(redPixels[i][j].getRedValue(),
-                  redChannelMap.getOrDefault(redPixels[i][j].getRedValue(),0)+1);
+        redChannelMap.put(redPixels[i][j].getRedValue(),
+                redChannelMap.getOrDefault(redPixels[i][j].getRedValue(),0)+1);
+      }
+    }
+
+    return redChannelMap;
+
+  }
+
+  private HashMap<Integer,Integer> getGreenFrequencyMap(){
+    Image greenChannel = this.getGreenChannel();
+    Pixel[][] greenPixels = greenChannel.getPixels();
+
+    HashMap<Integer, Integer> greenChannelMap = new HashMap<>();
+
+    for(int i=0; i<greenPixels.length; i++){
+      for(int j=0; j<greenPixels[i].length; j++){
 
         greenChannelMap.put(greenPixels[i][j].getGreenValue(),
                 greenChannelMap.getOrDefault(greenPixels[i][j].getGreenValue(),0)+1);
+      }
+    }
+
+    return greenChannelMap;
+
+  }
+
+  private HashMap<Integer,Integer> getBlueFrequencyMap(){
+    Image blueChannel = this.getBlueChannel();
+    Pixel[][] bluePixels = blueChannel.getPixels();
+
+    HashMap<Integer, Integer> blueChannelMap = new HashMap<>();
+
+    for(int i=0; i<bluePixels.length; i++){
+      for(int j=0; j<bluePixels[i].length; j++){
+
 
         blueChannelMap.put(bluePixels[i][j].getBlueValue(),
                 blueChannelMap.getOrDefault(bluePixels[i][j].getBlueValue(),0)+1);
       }
     }
+
+    return blueChannelMap;
+
+  }
+
+  @Override
+  public Image getHistogram() {
+
+    HashMap<Integer, Integer> redChannelMap = getRedFrequencyMap();
+    HashMap<Integer, Integer> greenChannelMap = getGreenFrequencyMap();
+    HashMap<Integer, Integer> blueChannelMap = getBlueFrequencyMap();
 
     int maxWidth = 256;
     int maxHeight = 256;
@@ -94,6 +127,61 @@ public class ColorImage implements Image {
 
 
     return new ColorImage(ImageController.convertToPixels(image));
+  }
+
+  @Override
+  public Image colorCorrect() {
+    HashMap<Integer, Integer> redChannelMap = getRedFrequencyMap();
+    HashMap<Integer, Integer> greenChannelMap = getGreenFrequencyMap();
+    HashMap<Integer, Integer> blueChannelMap = getBlueFrequencyMap();
+
+    Image redChannel = this.getRedChannel();
+    Image greenChannel = this.getGreenChannel();
+    Image blueChannel = this.getBlueChannel();
+
+    int redValueForMaxFrequency = findMaxFrequencyValue(redChannelMap);
+    int greenValueForMaxFrequency = findMaxFrequencyValue(greenChannelMap);
+    int blueValueForMaxFrequency = findMaxFrequencyValue(blueChannelMap);
+
+    int avgValue = (redValueForMaxFrequency + greenValueForMaxFrequency + blueValueForMaxFrequency) / 3;
+
+    int redOffset = avgValue - redValueForMaxFrequency;
+    int greenOffset = avgValue - greenValueForMaxFrequency;
+    int blueOffset = avgValue - blueValueForMaxFrequency;
+
+    Pixel[][] redPixels = redChannel.getPixels();
+    Pixel[][] greenPixels = greenChannel.getPixels();
+    Pixel[][] bluePixels = blueChannel.getPixels();
+
+    adjustChannel(redPixels, redOffset);
+    adjustChannel(greenPixels, greenOffset);
+    adjustChannel(bluePixels, blueOffset);
+
+    return combineChannel(new GreyscaleImage(redPixels),
+            new GreyscaleImage(greenPixels), new GreyscaleImage(bluePixels));
+  }
+
+  private int findMaxFrequencyValue(HashMap<Integer, Integer> channelMap) {
+    int maxFrequency = Integer.MIN_VALUE;
+    int valueForMaxFrequency = -1;
+
+    for (Integer value : channelMap.keySet()) {
+      if (channelMap.get(value) > maxFrequency && value > 10 && value < 245) {
+        maxFrequency = channelMap.get(value);
+        valueForMaxFrequency = value;
+      }
+    }
+
+    return valueForMaxFrequency;
+  }
+
+  private void adjustChannel(Pixel[][] pixels, int offset) {
+    for (int i = 0; i < pixels.length; i++) {
+      for (int j = 0; j < pixels[i].length; j++) {
+        pixels[i][j] = new GreyPixel(
+                Math.min(255, Math.max(pixels[i][j].getRedValue() + offset, 0)));
+      }
+    }
   }
 
   private void drawLineGraph(Graphics2D graphics, HashMap<Integer, Integer> channelMap,
