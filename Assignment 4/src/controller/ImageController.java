@@ -174,14 +174,14 @@ public class ImageController {
         imageMap.put(parts[2], correctedImage);
         break;
 
-//      case "levels-adjust":
-//        String b = parts[1];
-//        String m = parts[2];
-//        String w = parts[3];
-//        Image imageForLevelsAdjust = imageMap.get(parts[4]);
-//        Image adjustedLevelImg = imageForLevelsAdjust.adjustLevels(b,m,w);
-//        imageMap.put(parts[5], adjustedLevelImg);
-//        break;
+      case "levels-adjust":
+        String black = parts[1];
+        String mid = parts[2];
+        String white = parts[3];
+        Image imageForLevelsAdjust = imageMap.get(parts[4]);
+        Image adjustedLevelImg = imageForLevelsAdjust.adjustLevels(black,mid,white);
+        imageMap.put(parts[5], adjustedLevelImg);
+        break;
 
 
       case "sepia":
