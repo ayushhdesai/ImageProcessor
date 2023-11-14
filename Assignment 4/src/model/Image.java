@@ -126,6 +126,6 @@ public interface Image {
 
   Image colorCorrect();
 
-  Image adjustLevels(String black, String mid, String white );
+  Image adjustLevels(String black, String mid, String white);
 
 }

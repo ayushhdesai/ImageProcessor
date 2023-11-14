@@ -35,14 +35,14 @@ public class ColorImage implements Image {
     return this.pixels;
   }
 
-  private int[] getRedFrequencyMap(){
+  private int[] getRedFrequencyMap() {
     Image redChannel = this.getRedChannel();
     Pixel[][] redPixels = redChannel.getPixels();
 
     int[] redChannelMap = new int[256];
 
-    for(int i=0; i<redPixels.length; i++){
-      for(int j=0; j<redPixels[i].length; j++){
+    for (int i = 0; i < redPixels.length; i++) {
+      for (int j = 0; j < redPixels[i].length; j++) {
         redChannelMap[redPixels[i][j].getRedValue()]++;
       }
     }
@@ -51,16 +51,16 @@ public class ColorImage implements Image {
 
   }
 
-  private int[] getGreenFrequencyMap(){
+  private int[] getGreenFrequencyMap() {
     Image greenChannel = this.getGreenChannel();
     Pixel[][] greenPixels = greenChannel.getPixels();
 
-   int[] greenChannelMap = new int[256];
+    int[] greenChannelMap = new int[256];
 
-    for(int i=0; i<greenPixels.length; i++){
-      for(int j=0; j<greenPixels[i].length; j++){
+    for (int i = 0; i < greenPixels.length; i++) {
+      for (int j = 0; j < greenPixels[i].length; j++) {
 
-        greenChannelMap[ greenPixels[i][j].getGreenValue() ]++;
+        greenChannelMap[greenPixels[i][j].getGreenValue()]++;
       }
     }
 
@@ -68,17 +68,17 @@ public class ColorImage implements Image {
 
   }
 
-  private int[] getBlueFrequencyMap(){
+  private int[] getBlueFrequencyMap() {
     Image blueChannel = this.getBlueChannel();
     Pixel[][] bluePixels = blueChannel.getPixels();
 
     int[] blueChannelMap = new int[256];
 
-    for(int i=0; i<bluePixels.length; i++){
-      for(int j=0; j<bluePixels[i].length; j++){
+    for (int i = 0; i < bluePixels.length; i++) {
+      for (int j = 0; j < bluePixels[i].length; j++) {
 
 
-       blueChannelMap[bluePixels[i][j].getBlueValue()]++;
+        blueChannelMap[bluePixels[i][j].getBlueValue()]++;
       }
     }
 
@@ -103,8 +103,8 @@ public class ColorImage implements Image {
     double maxFrequency = Math.max(Math.max(maxRedValue, maxGreenValue), maxBlueValue);
 
     double xScale = (maxWidth - 50.0) / Math.max(redChannelMap.length, Math.max(greenChannelMap.length,
-            blueChannelMap.length))*1.25;
-    double yScale = (maxHeight - 50.0) / maxFrequency*1.25;
+            blueChannelMap.length)) * 1.25;
+    double yScale = (maxHeight - 50.0) / maxFrequency * 1.25;
 
 
     BufferedImage image = new BufferedImage(maxWidth, maxHeight, BufferedImage.TYPE_INT_RGB);
@@ -168,7 +168,7 @@ public class ColorImage implements Image {
     int m = Integer.parseInt(mid);
     int w = Integer.parseInt(white);
 
-    if(b>=m || m>=w || b<0 || b>255 || m<0 || m>255 || w<0 || w>255){
+    if (b >= m || m >= w || b < 0 || b > 255 || m < 0 || m > 255 || w < 0 || w > 255) {
       throw new IllegalArgumentException("b m w values invalid!");
     }
 
@@ -179,23 +179,23 @@ public class ColorImage implements Image {
     Pixel[][] greenPixels = greenChannel.getPixels();
     Pixel[][] bluePixels = blueChannel.getPixels();
 
-    int A = b*b*(m-w) - b*(m*m - w*w) + w*m*m - m*w*w;
-    int Aa = -b*(-127) + 128*w - 255*m;
-    int Ab = b*b*(-127)+255*m*m-128*w*w;
-    int Ac = b*b*(255*m - 128*w) - b*(255*m*m - 128*w*w );
+    int A = b * b * (m - w) - b * (m * m - w * w) + w * m * m - m * w * w;
+    int Aa = -b * (-127) + 128 * w - 255 * m;
+    int Ab = b * b * (-127) + 255 * m * m - 128 * w * w;
+    int Ac = b * b * (255 * m - 128 * w) - b * (255 * m * m - 128 * w * w);
 
-    float a = (float)Aa /A;
-    float bb = (float)Ab /A;
-    float c = (float) Ac /A;
+    float a = (float) Aa / A;
+    float bb = (float) Ab / A;
+    float c = (float) Ac / A;
 
-    for(int i=0; i<redPixels.length; i++){
-      for(int j=0; j<redPixels[i].length; j++){
+    for (int i = 0; i < redPixels.length; i++) {
+      for (int j = 0; j < redPixels[i].length; j++) {
         int xr = redPixels[i][j].getRedValue();
         int xg = greenPixels[i][j].getGreenValue();
         int xb = bluePixels[i][j].getBlueValue();
-        redPixels[i][j] = new GreyPixel( (int) Math.max(0,Math.min(255, (a*xr*xr + bb*xr+ c))     ) );
-        greenPixels[i][j] = new GreyPixel( (int)   Math.max(0,Math.min(255, (a*xg*xg + bb*xg + c)) )  );
-        bluePixels[i][j] = new GreyPixel(  (int) Math.max(0, Math.min(255,(a*xb*xb + bb*xb + c)))   );
+        redPixels[i][j] = new GreyPixel((int) Math.max(0, Math.min(255, (a * xr * xr + bb * xr + c))));
+        greenPixels[i][j] = new GreyPixel((int) Math.max(0, Math.min(255, (a * xg * xg + bb * xg + c))));
+        bluePixels[i][j] = new GreyPixel((int) Math.max(0, Math.min(255, (a * xb * xb + bb * xb + c))));
       }
     }
 
@@ -208,8 +208,8 @@ public class ColorImage implements Image {
     int maxFrequency = Integer.MIN_VALUE;
     int valueForMaxFrequency = -1;
 
-    for(int i=0; i<channelMap.length; i++){
-      if(channelMap[i]> maxFrequency){
+    for (int i = 0; i < channelMap.length; i++) {
+      if (channelMap[i] > maxFrequency) {
         maxFrequency = channelMap[i];
         valueForMaxFrequency = i;
       }
@@ -230,11 +230,11 @@ public class ColorImage implements Image {
   private void drawLineGraph(Graphics2D graphics, int[] channelMap,
                              double xScale, double yScale, int maxWidth, int maxHeight) {
 
-    for(int i=0; i<channelMap.length-1; i++){
-      double y1 = channelMap[i]*yScale;
-      double y2 = channelMap[i+1]*yScale;
+    for (int i = 0; i < channelMap.length - 1; i++) {
+      double y1 = channelMap[i] * yScale;
+      double y2 = channelMap[i + 1] * yScale;
 
-      graphics.drawLine(i,(int)(256-y1), i+1, (int)(256-y2));
+      graphics.drawLine(i, (int) (256 - y1), i + 1, (int) (256 - y2));
     }
   }
 
@@ -267,9 +267,6 @@ public class ColorImage implements Image {
     }
     return maxValue;
   }
-
-
-
 
 
   @Override

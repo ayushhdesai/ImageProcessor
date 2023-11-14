@@ -179,7 +179,7 @@ public class ImageController {
         String mid = parts[2];
         String white = parts[3];
         Image imageForLevelsAdjust = imageMap.get(parts[4]);
-        Image adjustedLevelImg = imageForLevelsAdjust.adjustLevels(black,mid,white);
+        Image adjustedLevelImg = imageForLevelsAdjust.adjustLevels(black, mid, white);
         imageMap.put(parts[5], adjustedLevelImg);
         break;
 
