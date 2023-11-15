@@ -11,13 +11,8 @@ import java.util.Scanner;
 
 import javax.imageio.ImageIO;
 
-import model.ColorImage;
 import model.ColorPixel;
-import model.GreyscaleImage;
-import model.Image;
 import model.Pixel;
-
-import static java.lang.System.exit;
 
 /**
  * This class acts as the controller tp run script commands.
@@ -145,233 +140,127 @@ public class ImageController {
   /**
    * Process a script command using a switch case.
    *
-   * @param command the command given.
    * @throws IOException if there's an error while processing the command.
    */
-  public void processCommand(String command) throws IOException {
-
-    String[] parts = command.split(" ");
-
+  public void processCommand(String commandLine) throws IOException {
+    String[] parts = commandLine.split(" ");
+    Command command;
 
     switch (parts[0]) {
       case "load":
-        BufferedImage loadedImage = loadImage(parts[1]);
-        Pixel[][] pixels = convertToPixels(loadedImage);
-        imageMap.put(parts[2], new ColorImage(pixels));
+        command = new LoadCommand(this, parts[1], parts[2]);
         break;
-
 
       case "histogram":
-        Image imageForHistogram = imageMap.get(parts[1]);
-        Image histogramImage = imageForHistogram.getHistogram();
-        imageMap.put(parts[2], histogramImage);
+        command = new HistogramCommand(this, parts[1], parts[2]);
         break;
 
-
       case "color-correct":
-        Image imageForColorCorrect = imageMap.get(parts[1]);
-        Image correctedImage;
+        Integer percentage = null;
         if (parts.length == 5 && "split".equals(parts[3])) {
-          int percentage = Integer.parseInt(parts[4]);
-          correctedImage = imageForColorCorrect.colorCorrectWithSplit(percentage);
-        } else {
-          correctedImage = imageForColorCorrect.colorCorrect();
+          percentage = Integer.parseInt(parts[4]);
         }
-        imageMap.put(parts[2], correctedImage);
+        command = new ColorCorrectCommand(this, parts[1], parts[2], percentage);
         break;
 
       case "levels-adjust":
-        String black = parts[1];
-        String mid = parts[2];
-        String white = parts[3];
-        Image imageForLevelsAdjust = imageMap.get(parts[4]);
-        Image adjustedLevelImg;
-
+        Integer per = null;
         if (parts.length == 8 && "split".equals(parts[6])) {
-          int percentage = Integer.parseInt(parts[7]);
-          adjustedLevelImg = imageForLevelsAdjust.levelAdjustWithSplit(black, mid, white, percentage);
-        } else {
-          adjustedLevelImg = imageForLevelsAdjust.adjustLevels(black, mid, white);
+          per = Integer.parseInt(parts[7]);
         }
-
-        imageMap.put(parts[5], adjustedLevelImg);
+        command = new LevelsAdjustCommand(this, parts[1], parts[2], parts[3], parts[4], parts[5], per);
         break;
 
       case "sepia":
-        ColorImage imageToTransform = (ColorImage) imageMap.get(parts[1]);
-        float[][] mat = {
-                {0.393F, 0.769F, 0.189F},
-                {0.349F, 0.686F, 0.186F},
-                {0.272F, 0.534F, 0.131F}
-        };
-        Image transformedImage;
-
+        Integer percen = null;
         if (parts.length == 5 && "split".equals(parts[3])) {
-          int percentage = Integer.parseInt(parts[4]);
-          transformedImage = imageToTransform.linearTransformWithSplit(mat, percentage);
-        } else {
-          transformedImage = imageToTransform.linearTransform(mat);
+          percen = Integer.parseInt(parts[4]);
         }
-
-        imageMap.put(parts[2], transformedImage);
+        command = new SepiaCommand(this, parts[1], parts[2], percen);
         break;
 
       case "red-component":
-        Image imageToRedTransform = imageMap.get(parts[1]);
-        Image redComponent = imageToRedTransform.visualizeRedComponent();
-        imageMap.put(parts[2], redComponent);
+        command = new RedComponentCommand(this, parts[1], parts[2]);
         break;
 
       case "blue-component":
-        Image imageToBlueTransform = imageMap.get(parts[1]);
-        Image blueComponent = imageToBlueTransform.visualizeBlueComponent();
-        imageMap.put(parts[2], blueComponent);
+        command = new BlueComponentCommand(this, parts[1], parts[2]);
         break;
 
       case "green-component":
-        Image imageToGreenTransform = imageMap.get(parts[1]);
-        Image greenComponent = imageToGreenTransform.visualizeGreenComponent();
-        imageMap.put(parts[2], greenComponent);
+        command = new GreenComponentCommand(this, parts[1], parts[2]);
         break;
 
       case "value":
-        Image imageToValueTransform = imageMap.get(parts[1]);
-        GreyscaleImage valueComponent = (GreyscaleImage) imageToValueTransform.getValue();
-        imageMap.put(parts[2], valueComponent);
+        command = new ValueCommand(this, parts[1], parts[2]);
         break;
 
       case "luma":
-        Image imageToLumaTransform = imageMap.get(parts[1]);
-        GreyscaleImage lumaComponent = (GreyscaleImage) imageToLumaTransform.getLuma();
-        imageMap.put(parts[2], lumaComponent);
+        command = new LumaCommand(this, parts[1], parts[2]);
         break;
 
       case "intensity":
-        Image imageToIntensityTransform = imageMap.get(parts[1]);
-        GreyscaleImage intensityComponent =
-                (GreyscaleImage) imageToIntensityTransform.getIntensity();
-        imageMap.put(parts[2], intensityComponent);
+        command = new IntensityCommand(this, parts[1], parts[2]);
         break;
 
       case "rgb-split":
-        Image imageToSplit = imageMap.get(parts[1]);
-        GreyscaleImage redSplit = (GreyscaleImage) imageToSplit.getRedChannel();
-        GreyscaleImage greenSplit = (GreyscaleImage) imageToSplit.getGreenChannel();
-        GreyscaleImage blueSplit = (GreyscaleImage) imageToSplit.getBlueChannel();
-        imageMap.put(parts[2], redSplit);
-        imageMap.put(parts[3], greenSplit);
-        imageMap.put(parts[4], blueSplit);
+        command = new RgbSplitCommand(this, parts[1], parts[2], parts[3], parts[4]);
         break;
 
       case "rgb-combine":
-        Image redGreyImage = imageMap.get(parts[2]);
-        Image greenGreyImage = imageMap.get(parts[3]);
-        Image blueGreyImage = imageMap.get(parts[4]);
-        Image combinedImage = redGreyImage.combineChannel(redGreyImage,
-                greenGreyImage, blueGreyImage);
-        imageMap.put(parts[1], combinedImage);
+        command = new RgbCombineCommand(this, parts[1], parts[2], parts[3], parts[4]);
         break;
 
       case "greyscale":
-        ColorImage imageToTransform3 = (ColorImage) imageMap.get(parts[1]);
-        float[][] mat3 = {
-                {0.2126F, 0.7152F, 0.0722F},
-                {0.2126F, 0.7152F, 0.0722F},
-                {0.2126F, 0.7152F, 0.0722F}
-        };
-        Image transformedImage3;
-
+        Integer percentag = null;
         if (parts.length == 5 && "split".equals(parts[3])) {
-          int percentage = Integer.parseInt(parts[4]);
-          transformedImage3 = imageToTransform3.linearTransformWithSplit(mat3, percentage);
-        } else {
-          transformedImage3 = imageToTransform3.linearTransform(mat3);
+          percentag = Integer.parseInt(parts[4]);
         }
-
-        imageMap.put(parts[2], transformedImage3);
+        command = new GreyscaleCommand(this, parts[1], parts[2], percentag);
         break;
 
       case "vertical-flip":
-        ColorImage imageToVFlip = (ColorImage) imageMap.get(parts[1]);
-        Image flipImage = imageToVFlip.verticalFlip();
-        imageMap.put(parts[2], flipImage);
+        command = new VerticalFlipCommand(this, parts[1], parts[2]);
         break;
 
       case "horizontal-flip":
-        ColorImage imageToHFlip = (ColorImage) imageMap.get(parts[1]);
-        Image flipImage1 = imageToHFlip.horizontalFlip();
-        imageMap.put(parts[2], flipImage1);
+        command = new HorizontalFlipCommand(this, parts[1], parts[2]);
         break;
 
       case "blur":
-        ColorImage imageToTransform1 = (ColorImage) imageMap.get(parts[1]);
-        float[][] kernel = {
-                {0.0625F, 0.125F, 0.0625F},
-                {0.125F, 0.25F, 0.125F},
-                {0.0625F, 0.125F, 0.0625F}
-        };
-
-        Image transformedImage1;
-
+        Integer blurPercentage = null;
         if (parts.length == 5 && "split".equals(parts[3])) {
-          int percentage = Integer.parseInt(parts[4]);
-          transformedImage1 = imageToTransform1.filterSplit(kernel, percentage);
-        } else {
-          transformedImage1 = imageToTransform1.filter(kernel);
+          blurPercentage = Integer.parseInt(parts[4]);
         }
-
-        imageMap.put(parts[2], transformedImage1);
+        command = new BlurCommand(this, parts[1], parts[2], blurPercentage);
         break;
 
-
       case "sharpen":
-        ColorImage imageToTransform2 = (ColorImage) imageMap.get(parts[1]);
-        float[][] kernel1 = {
-                {-0.125F, -0.125F, -0.125F, -0.125F, -0.125F},
-                {-0.125F, 0.25F, 0.25F, 0.25F, -0.125F},
-                {-0.125F, 0.25F, 1F, 0.25F, -0.125F},
-                {-0.125F, 0.25F, 0.25F, 0.25F, -0.125F},
-                {-0.125F, -0.125F, -0.125F, -0.125F, -0.125F}
-        };
-        Image transformedImage2;
-
+        Integer sharpenPercentage = null;
         if (parts.length == 5 && "split".equals(parts[3])) {
-          int percentage = Integer.parseInt(parts[4]);
-          transformedImage2 = imageToTransform2.filterSplit(kernel1, percentage);
-        } else {
-          transformedImage2 = imageToTransform2.filter(kernel1);
+          sharpenPercentage = Integer.parseInt(parts[4]);
         }
-
-        imageMap.put(parts[2], transformedImage2);
+        command = new SharpenCommand(this, parts[1], parts[2], sharpenPercentage);
         break;
 
       case "save":
-        String filePath = parts[1];
-        String extension = filePath.substring(filePath.lastIndexOf(".") + 1);
-        BufferedImage imgToSave =
-                convertToBufferedImage(((ColorImage) imageMap.get(parts[2])).getPixels());
-        saveImage(imgToSave, extension, parts[1]);
+        command = new SaveCommand(this, parts[1], parts[2]);
         break;
 
       case "brighten":
-        ColorImage imageToBrighten = (ColorImage) imageMap.get(parts[2]);
         int alpha = Integer.parseInt(parts[1]);
-        Image brightenedImage = imageToBrighten.brighten(alpha);
-        imageMap.put(parts[3], brightenedImage);
+        command = new BrightenCommand(this, alpha, parts[2], parts[3]);
         break;
 
       case "compress":
-        String imageKey = parts[2];
-        float percentage = Float.parseFloat(parts[1]);
-        String outputImageKey = parts[3];
-        ColorImage imageToCompress = (ColorImage) imageMap.get(imageKey);
-        Image compressedImage = imageToCompress.compress(percentage);
-        imageMap.put(outputImageKey, compressedImage);
+        float percent = Float.parseFloat(parts[1]);
+        command = new CompressCommand(this, percent, parts[2], parts[3]);
         break;
 
       default:
-        exit(0);
+        throw new IllegalArgumentException("Invalid command");
     }
 
+    command.execute();
   }
 }

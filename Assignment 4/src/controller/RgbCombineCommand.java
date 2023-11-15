@@ -1,0 +1,28 @@
+package controller;
+
+import model.Image;
+
+public class RgbCombineCommand implements Command {
+  private ImageController controller;
+  private String outputImageKey;
+  private String redImageKey;
+  private String greenImageKey;
+  private String blueImageKey;
+
+  public RgbCombineCommand(ImageController controller, String outputImageKey, String redImageKey, String greenImageKey, String blueImageKey) {
+    this.controller = controller;
+    this.outputImageKey = outputImageKey;
+    this.redImageKey = redImageKey;
+    this.greenImageKey = greenImageKey;
+    this.blueImageKey = blueImageKey;
+  }
+
+  @Override
+  public void execute() {
+    Image redGreyImage = controller.imageMap.get(redImageKey);
+    Image greenGreyImage = controller.imageMap.get(greenImageKey);
+    Image blueGreyImage = controller.imageMap.get(blueImageKey);
+    Image combinedImage = redGreyImage.combineChannel(redGreyImage, greenGreyImage, blueGreyImage);
+    controller.imageMap.put(outputImageKey, combinedImage);
+  }
+}
