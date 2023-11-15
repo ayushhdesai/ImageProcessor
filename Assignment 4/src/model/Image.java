@@ -133,4 +133,8 @@ public interface Image {
   Image filterSplit(float[][] kernel, Integer splitPercentage);
 
   Image linearTransformWithSplit(float[][] mat, Integer splitPercentage);
+
+  Image colorCorrectWithSplit(Integer splitPercentage);
+
+  Image levelAdjustWithSplit(String black, String mid, String white, Integer splitPercentage);
 }

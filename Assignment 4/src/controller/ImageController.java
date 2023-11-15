@@ -170,7 +170,13 @@ public class ImageController {
 
       case "color-correct":
         Image imageForColorCorrect = imageMap.get(parts[1]);
-        Image correctedImage = imageForColorCorrect.colorCorrect();
+        Image correctedImage;
+        if (parts.length == 5 && "split".equals(parts[3])) {
+          int percentage = Integer.parseInt(parts[4]);
+          correctedImage = imageForColorCorrect.colorCorrectWithSplit(percentage);
+        } else {
+          correctedImage = imageForColorCorrect.colorCorrect();
+        }
         imageMap.put(parts[2], correctedImage);
         break;
 
@@ -179,10 +185,17 @@ public class ImageController {
         String mid = parts[2];
         String white = parts[3];
         Image imageForLevelsAdjust = imageMap.get(parts[4]);
-        Image adjustedLevelImg = imageForLevelsAdjust.adjustLevels(black, mid, white);
+        Image adjustedLevelImg;
+
+        if (parts.length == 8 && "split".equals(parts[6])) {
+          int percentage = Integer.parseInt(parts[7]);
+          adjustedLevelImg = imageForLevelsAdjust.levelAdjustWithSplit(black, mid, white, percentage);
+        } else {
+          adjustedLevelImg = imageForLevelsAdjust.adjustLevels(black, mid, white);
+        }
+
         imageMap.put(parts[5], adjustedLevelImg);
         break;
-
 
       case "sepia":
         ColorImage imageToTransform = (ColorImage) imageMap.get(parts[1]);

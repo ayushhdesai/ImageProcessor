@@ -800,6 +800,18 @@ public class ColorImage implements Image {
     return getImage(splitPercentage, allTransformedPixels);
   }
 
+  @Override
+  public Image colorCorrectWithSplit(Integer splitPercentage) {
+    Pixel[][] allTransformedPixels = this.colorCorrect().getPixels();
+    return getImage(splitPercentage, allTransformedPixels);
+  }
+
+  @Override
+  public Image levelAdjustWithSplit(String black, String mid, String white, Integer splitPercentage) {
+    Pixel[][] allTransformedPixels = this.adjustLevels(black, mid, white).getPixels();
+    return getImage(splitPercentage, allTransformedPixels);
+  }
+
   private Image getImage(@Nullable Integer splitPercentage, Pixel[][] allTransformedPixels) {
     Pixel[][] resultPixels = new Pixel[this.pixels.length][this.pixels[0].length];
 
