@@ -1,12 +1,11 @@
 package model;
 
-import com.sun.source.tree.Tree;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.ArrayList;
+import java.util.List;
 
 import controller.ImageController;
 
@@ -16,6 +15,8 @@ import controller.ImageController;
 public class ColorImage implements Image {
 
   protected Pixel[][] pixels;
+  private int originalWidth;
+  private int originalHeight;
 
   /**
    * Constructor that initialises the image with the give pixels.
@@ -467,9 +468,9 @@ public class ColorImage implements Image {
             int colIndex = j - midcol + y;
 
             if (rowIndex >= 0 && rowIndex < rows && colIndex >= 0 && colIndex < cols) {
-              sumred += currRedChannelPixels[rowIndex][colIndex].getRedValue() * kernel[x][y];
-              sumgreen += currGreenChannelPixels[rowIndex][colIndex].getGreenValue() * kernel[x][y];
-              sumblue += currBlueChannelPixels[rowIndex][colIndex].getBlueValue() * kernel[x][y];
+              sumred += (int) (currRedChannelPixels[rowIndex][colIndex].getRedValue() * kernel[x][y]);
+              sumgreen += (int) (currGreenChannelPixels[rowIndex][colIndex].getGreenValue() * kernel[x][y]);
+              sumblue += (int) (currBlueChannelPixels[rowIndex][colIndex].getBlueValue() * kernel[x][y]);
             }
           }
         }
@@ -559,4 +560,268 @@ public class ColorImage implements Image {
 
     return new GreyscaleImage(greyPixelsForGreenChannel);
   }
+
+  @Override
+  public Image compress(float percentage) {
+    if (percentage < 1 || percentage > 99)  {
+      throw new IllegalArgumentException("Percentage should be between 1-99");
+    }
+    this.padImageToPowerOfTwo();
+
+    this.applyHaarTransform();
+
+    this.applyThresholding(percentage);
+
+    this.invertHaarTransform();
+
+    this.undoImage();
+
+    return this;
+  }
+
+  private void padImageToPowerOfTwo() {
+    originalWidth = this.pixels[0].length;
+    originalHeight = this.pixels.length;
+
+    int maxSize = Math.max(originalWidth, originalHeight);
+    int targetSize = nextPowerOfTwo(maxSize);
+
+    Pixel[][] paddedPixels = new Pixel[targetSize][targetSize];
+
+    for (int i = 0; i < targetSize; i++) {
+      for (int j = 0; j < targetSize; j++) {
+        paddedPixels[i][j] = new ColorPixel(0, 0, 0);
+      }
+    }
+
+    // Copy original pixels to the new padded array
+    for (int i = 0; i < originalHeight; i++) {
+      for (int j = 0; j < originalWidth; j++) {
+        paddedPixels[i][j] = this.pixels[i][j];
+      }
+    }
+
+    this.pixels = paddedPixels;
+  }
+
+  private int nextPowerOfTwo(int number) {
+    int power = 1;
+    while (power < number) {
+      power *= 2;
+    }
+    return power;
+  }
+
+  private void applyHaarTransform() {
+    int n = this.pixels.length;
+
+    // Apply transform to each row
+    for (int i = 0; i < n; i++) {
+      this.pixels[i] = transformRowOrColumn(this.pixels[i]);
+    }
+
+    // Apply transform to each column
+    for (int j = 0; j < n; j++) {
+      Pixel[] column = new Pixel[n];
+      for (int i = 0; i < n; i++) {
+        column[i] = this.pixels[i][j];
+      }
+      column = transformRowOrColumn(column);
+      for (int i = 0; i < n; i++) {
+        this.pixels[i][j] = column[i];
+      }
+    }
+  }
+
+  private Pixel[] transformRowOrColumn(Pixel[] sequence) {
+    int n = sequence.length;
+    Pixel[] transformed = new Pixel[n];
+    int halfN = n / 2;
+
+    for (int i = 0; i < halfN; i++) {
+      Pixel avg = average(sequence[2 * i], sequence[2 * i + 1]);
+      Pixel diff = difference(sequence[2 * i], sequence[2 * i + 1]);
+      transformed[i] = avg;
+      transformed[i + halfN] = diff;
+    }
+
+    return transformed;
+  }
+
+  private Pixel average(Pixel a, Pixel b) {
+    int avgRed = (a.getRedValue() + b.getRedValue()) / 2;
+    int avgGreen = (a.getGreenValue() + b.getGreenValue()) / 2;
+    int avgBlue = (a.getBlueValue() + b.getBlueValue()) / 2;
+    return new ColorPixel(avgRed, avgGreen, avgBlue);
+  }
+
+  private Pixel difference(Pixel a, Pixel b) {
+    int diffRed = (a.getRedValue() - b.getRedValue()) / 2;
+    int diffGreen = (a.getGreenValue() - b.getGreenValue()) / 2;
+    int diffBlue = (a.getBlueValue() - b.getBlueValue()) / 2;
+    return new ColorPixel(diffRed, diffGreen, diffBlue);
+  }
+
+  private void applyThresholding(float percentage) {
+    List<Integer> redValues = new ArrayList<>();
+    List<Integer> greenValues = new ArrayList<>();
+    List<Integer> blueValues = new ArrayList<>();
+
+    // Flatten and store absolute values for each channel
+    for (Pixel[] row : this.pixels) {
+      for (Pixel pixel : row) {
+        redValues.add(Math.abs(pixel.getRedValue()));
+        greenValues.add(Math.abs(pixel.getGreenValue()));
+        blueValues.add(Math.abs(pixel.getBlueValue()));
+      }
+    }
+
+    // Calculate thresholds for each channel
+    int redThreshold = calculateThreshold(redValues, percentage);
+    int greenThreshold = calculateThreshold(greenValues, percentage);
+    int blueThreshold = calculateThreshold(blueValues, percentage);
+
+    // Apply thresholding
+    for (int i = 0; i < this.pixels.length; i++) {
+      for (int j = 0; j < this.pixels[i].length; j++) {
+        Pixel currentPixel = this.pixels[i][j];
+        int redValue = Math.abs(currentPixel.getRedValue())
+                < redThreshold ? 0 : currentPixel.getRedValue();
+        int greenValue = Math.abs(currentPixel.getGreenValue())
+                < greenThreshold ? 0 : currentPixel.getGreenValue();
+        int blueValue = Math.abs(currentPixel.getBlueValue())
+                < blueThreshold ? 0 : currentPixel.getBlueValue();
+        this.pixels[i][j] = new ColorPixel(redValue, greenValue, blueValue);
+      }
+    }
+  }
+
+  private int calculateThreshold(List<Integer> values, float percentage) {
+    int sum = 0;
+    for (int value : values) {
+      sum += value;
+    }
+
+    double mean = sum / (double) values.size();
+
+    double sumOfSquares = 0.0;
+    for (int value : values) {
+      sumOfSquares += Math.pow(value - mean, 2);
+    }
+
+    double stdDev = Math.sqrt(sumOfSquares / values.size());
+
+    double threshold = mean + stdDev * (percentage / 100.0);
+
+    return (int) threshold;
+  }
+
+
+  private void invertHaarTransform() {
+    int n = this.pixels.length;
+
+    // Apply inverse transform to each column
+    for (int j = 0; j < n; j++) {
+      Pixel[] column = new Pixel[n];
+      for (int i = 0; i < n; i++) {
+        column[i] = this.pixels[i][j];
+      }
+      column = inverseTransformRowOrColumn(column);
+      for (int i = 0; i < n; i++) {
+        this.pixels[i][j] = column[i];
+      }
+    }
+
+    // Apply inverse transform to each row
+    for (int i = 0; i < n; i++) {
+      this.pixels[i] = inverseTransformRowOrColumn(this.pixels[i]);
+    }
+  }
+
+  private Pixel[] inverseTransformRowOrColumn(Pixel[] sequence) {
+    int n = sequence.length;
+    Pixel[] original = new Pixel[n];
+    int halfN = n / 2;
+
+    for (int i = 0; i < halfN; i++) {
+      Pixel a = sequence[i];
+      Pixel d = sequence[i + halfN];
+      original[2 * i] = reconstruct(a, d, true);
+      original[2 * i + 1] = reconstruct(a, d, false);
+    }
+
+    return original;
+  }
+
+  private Pixel reconstruct(Pixel avg, Pixel diff, boolean firstElement) {
+    int redValue = firstElement
+            ? avg.getRedValue() + diff.getRedValue()
+            : avg.getRedValue() - diff.getRedValue();
+    int greenValue = firstElement
+            ? avg.getGreenValue() + diff.getGreenValue()
+            : avg.getGreenValue() - diff.getGreenValue();
+    int blueValue = firstElement
+            ? avg.getBlueValue() + diff.getBlueValue()
+            : avg.getBlueValue() - diff.getBlueValue();
+
+    // Clamp the data
+    redValue = Math.max(0, Math.min(255, redValue));
+    greenValue = Math.max(0, Math.min(255, greenValue));
+    blueValue = Math.max(0, Math.min(255, blueValue));
+
+    return new ColorPixel(redValue, greenValue, blueValue);
+  }
+
+  private void undoImage() {
+    Pixel[][] undoPixels = new Pixel[originalHeight][originalWidth];
+
+    for (int i = 0; i < originalHeight; i++) {
+      for (int j = 0; j < originalWidth; j++) {
+        undoPixels[i][j] = this.pixels[i][j];
+      }
+    }
+
+    this.pixels = undoPixels;
+  }
+
+  @Override
+  public Image filterSplit(float[][] kernel, Integer splitPercentage) {
+    Pixel[][] entireFilteredPixels = this.filter(kernel).getPixels();
+    return getImage(splitPercentage, entireFilteredPixels);
+  }
+
+  @Override
+  public Image linearTransformWithSplit(float[][] mat, Integer splitPercentage) {
+    if (mat.length != 3 || mat[0].length != 3) {
+      throw new IllegalArgumentException("Improper transformation matrix size");
+    }
+
+    Pixel[][] allTransformedPixels = this.linearTransform(mat).getPixels();
+    return getImage(splitPercentage, allTransformedPixels);
+  }
+
+  private Image getImage(@Nullable Integer splitPercentage, Pixel[][] allTransformedPixels) {
+    Pixel[][] resultPixels = new Pixel[this.pixels.length][this.pixels[0].length];
+
+    int splitColumn = (splitPercentage != null) ? (int) (this.pixels[0].length * (splitPercentage / 100.0)) : this.pixels[0].length;
+
+    for (int i = 0; i < this.pixels.length; i++) {
+      for (int j = 0; j < this.pixels[i].length; j++) {
+        if (splitPercentage != null && j >= splitColumn) {
+          resultPixels[i][j] = this.pixels[i][j];
+        } else {
+          resultPixels[i][j] = allTransformedPixels[i][j];
+        }
+      }
+    }
+
+    if (splitPercentage != null) {
+      for (int i = 0; i < this.pixels.length; i++) {
+        resultPixels[i][splitColumn] = new ColorPixel(255, 0, 0);
+      }
+    }
+
+    return new ColorImage(resultPixels);
+  }
+
 }

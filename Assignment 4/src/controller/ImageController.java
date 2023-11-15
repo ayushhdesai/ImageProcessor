@@ -191,7 +191,15 @@ public class ImageController {
                 {0.349F, 0.686F, 0.186F},
                 {0.272F, 0.534F, 0.131F}
         };
-        Image transformedImage = imageToTransform.linearTransform(mat);
+        Image transformedImage;
+
+        if (parts.length == 5 && "split".equals(parts[3])) {
+          int percentage = Integer.parseInt(parts[4]);
+          transformedImage = imageToTransform.linearTransformWithSplit(mat, percentage);
+        } else {
+          transformedImage = imageToTransform.linearTransform(mat);
+        }
+
         imageMap.put(parts[2], transformedImage);
         break;
 
@@ -258,7 +266,15 @@ public class ImageController {
                 {0.2126F, 0.7152F, 0.0722F},
                 {0.2126F, 0.7152F, 0.0722F}
         };
-        Image transformedImage3 = imageToTransform3.linearTransform(mat3);
+        Image transformedImage3;
+
+        if (parts.length == 5 && "split".equals(parts[3])) {
+          int percentage = Integer.parseInt(parts[4]);
+          transformedImage3 = imageToTransform3.linearTransformWithSplit(mat3, percentage);
+        } else {
+          transformedImage3 = imageToTransform3.linearTransform(mat3);
+        }
+
         imageMap.put(parts[2], transformedImage3);
         break;
 
@@ -281,9 +297,19 @@ public class ImageController {
                 {0.125F, 0.25F, 0.125F},
                 {0.0625F, 0.125F, 0.0625F}
         };
-        Image transformedImage1 = imageToTransform1.filter(kernel);
+
+        Image transformedImage1;
+
+        if (parts.length == 5 && "split".equals(parts[3])) {
+          int percentage = Integer.parseInt(parts[4]);
+          transformedImage1 = imageToTransform1.filterSplit(kernel, percentage);
+        } else {
+          transformedImage1 = imageToTransform1.filter(kernel);
+        }
+
         imageMap.put(parts[2], transformedImage1);
         break;
+
 
       case "sharpen":
         ColorImage imageToTransform2 = (ColorImage) imageMap.get(parts[1]);
@@ -294,7 +320,15 @@ public class ImageController {
                 {-0.125F, 0.25F, 0.25F, 0.25F, -0.125F},
                 {-0.125F, -0.125F, -0.125F, -0.125F, -0.125F}
         };
-        Image transformedImage2 = imageToTransform2.filter(kernel1);
+        Image transformedImage2;
+
+        if (parts.length == 5 && "split".equals(parts[3])) {
+          int percentage = Integer.parseInt(parts[4]);
+          transformedImage2 = imageToTransform2.filterSplit(kernel1, percentage);
+        } else {
+          transformedImage2 = imageToTransform2.filter(kernel1);
+        }
+
         imageMap.put(parts[2], transformedImage2);
         break;
 
@@ -311,6 +345,15 @@ public class ImageController {
         int alpha = Integer.parseInt(parts[1]);
         Image brightenedImage = imageToBrighten.brighten(alpha);
         imageMap.put(parts[3], brightenedImage);
+        break;
+
+      case "compress":
+        String imageKey = parts[2];
+        float percentage = Float.parseFloat(parts[1]);
+        String outputImageKey = parts[3];
+        ColorImage imageToCompress = (ColorImage) imageMap.get(imageKey);
+        Image compressedImage = imageToCompress.compress(percentage);
+        imageMap.put(outputImageKey, compressedImage);
         break;
 
       default:

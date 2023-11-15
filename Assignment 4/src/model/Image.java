@@ -128,4 +128,9 @@ public interface Image {
 
   Image adjustLevels(String black, String mid, String white);
 
+  Image compress(float percentage);
+
+  Image filterSplit(float[][] kernel, Integer splitPercentage);
+
+  Image linearTransformWithSplit(float[][] mat, Integer splitPercentage);
 }
