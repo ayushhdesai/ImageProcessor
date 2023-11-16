@@ -5,9 +5,14 @@ import org.jetbrains.annotations.Nullable;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import controller.ImageController;
+
+import static java.lang.Math.sqrt;
 
 /**
  * This class represents a color image with pixels arranged in 2D array.
@@ -563,23 +568,50 @@ public class ColorImage implements Image {
 
   @Override
   public Image compress(float percentage) {
-    if (percentage < 1 || percentage > 99)  {
+    if (percentage < 1 || percentage > 99) {
       throw new IllegalArgumentException("Percentage should be between 1-99");
     }
-    this.padImageToPowerOfTwo();
 
-    this.applyHaarTransform();
+    Image paddedImg = this.padImageToPowerOfTwo();
 
-    this.applyThresholding(percentage);
 
-    this.invertHaarTransform();
+    Image redChannel = paddedImg.getRedChannel();
+    Pixel[][] redPixels = redChannel.getPixels();
+    Image greenChannel = paddedImg.getGreenChannel();
+    Pixel[][] greenPixels = greenChannel.getPixels();
+    Image blueChannel = paddedImg.getBlueChannel();
+    Pixel[][] bluePixels = blueChannel.getPixels();
 
-    this.undoImage();
+    int n = paddedImg.getPixels().length;
 
-    return this;
+    double[][] redValues = new double[n][n];
+    double[][] greenValues = new double[n][n];
+    double[][] blueValues = new double[n][n];
+
+    for (int i = 0; i < n; i++) {
+      for (int j = 0; j < n; j++) {
+        redValues[i][j] = redPixels[i][j].getRedValue();
+        greenValues[i][j] = greenPixels[i][j].getGreenValue();
+        blueValues[i][j] = bluePixels[i][j].getBlueValue();
+      }
+    }
+
+    double[][] transformedRed = this.haarTransform(redValues, n);
+    double[][] transformedGreen = this.haarTransform(greenValues, n);
+    double[][] transformedBlue = this.haarTransform(blueValues, n);
+
+    applyThresholding(percentage, transformedRed, transformedGreen, transformedBlue);
+
+    this.invertHaarTransform(transformedRed);
+    this.invertHaarTransform(transformedGreen);
+    this.invertHaarTransform(transformedBlue);
+
+    return this.undoImage(transformedRed, transformedGreen, transformedBlue);
+
+
   }
 
-  private void padImageToPowerOfTwo() {
+  private Image padImageToPowerOfTwo() {
     originalWidth = this.pixels[0].length;
     originalHeight = this.pixels.length;
 
@@ -597,11 +629,12 @@ public class ColorImage implements Image {
     // Copy original pixels to the new padded array
     for (int i = 0; i < originalHeight; i++) {
       for (int j = 0; j < originalWidth; j++) {
-        paddedPixels[i][j] = this.pixels[i][j];
+        paddedPixels[i][j] = new ColorPixel(this.pixels[i][j].getRedValue(),
+                this.pixels[i][j].getGreenValue(), this.pixels[i][j].getBlueValue());
       }
     }
 
-    this.pixels = paddedPixels;
+    return new ColorImage(paddedPixels);
   }
 
   private int nextPowerOfTwo(int number) {
@@ -612,177 +645,351 @@ public class ColorImage implements Image {
     return power;
   }
 
-  private void applyHaarTransform() {
-    int n = this.pixels.length;
+
+  private double[][] haarTransform(double[][] givenChannelImage, int size) {
+    int c = size;
+    while (c > 1) {
+      for (int i = 0; i < c; i++) {
+        double[] partToTransform = Arrays.copyOfRange(givenChannelImage[i], 0, c);
+        double[] transformedRow = T(partToTransform, c);
+        double[] restOfTheRowArray = new double[size - c];
+        if (c != size) {
+          restOfTheRowArray = Arrays.copyOfRange(givenChannelImage[i], c, size);
+        }
+        givenChannelImage[i] = arrayConcatnation(transformedRow, c, restOfTheRowArray,
+                size - c);
+      }
+      for (int j = 0; j < c; j++) {
+        double[] channelImageColumn = new double[size];
+        // gets the corresponding column from the 2d float array and transform it
+        for (int i = 0; i < size; i++) {
+          channelImageColumn[i] = givenChannelImage[i][j];
+        }
+
+        double[] partToTransform = Arrays.copyOfRange(channelImageColumn, 0, c);
+        double[] transformedColumn = T(partToTransform, c);
+        double[] restOfTheColArray = new double[size - c];
+        if (c != size) {
+          restOfTheColArray = Arrays.copyOfRange(channelImageColumn, c, size);
+        }
+        channelImageColumn = arrayConcatnation(transformedColumn, c, restOfTheColArray,
+                size - c);
+        // assigned the transformed value back to the 2d float array
+        for (int i = 0; i < size; i++) {
+          givenChannelImage[i][j] = channelImageColumn[i];
+        }
+      }
+      c = c / 2;
+    }
+    return givenChannelImage;
+  }
+
+
+  private double[] T(double[] givenArray, int size) {
+    double[] avg = new double[size / 2];
+    double[] diff = new double[size / 2];
+
+    for (int i = 0; i < size - 1; i = i + 2) {
+      double av = (givenArray[i] + givenArray[i + 1]) / Math.sqrt(2);
+      double di = (givenArray[i] - givenArray[i + 1]) / Math.sqrt(2);
+      avg[i / 2] = Math.round(av * 1000.0) / 1000.0;
+
+      diff[i / 2] = Math.round(di * 1000.0) / 1000.0;
+    }
+    double[] transformedArray = new double[size];
+
+    System.arraycopy(avg, 0, transformedArray, 0, size / 2);
+    System.arraycopy(diff, 0, transformedArray, size / 2, size / 2);
+    return transformedArray;
+  }
+
+
+  private double[][] applyHaarTransformRed(Image paddedImg) {
+    int n = paddedImg.getPixels().length;
+    Image redChannel = paddedImg.getRedChannel();
+    Pixel[][] redPixels = redChannel.getPixels();
+
+
+    double[][] redValues = new double[n][n];
+
+
+    for (int i = 0; i < n; i++) {
+      for (int j = 0; j < n; j++) {
+        redValues[i][j] = redPixels[i][j].getRedValue();
+      }
+    }
+
 
     // Apply transform to each row
     for (int i = 0; i < n; i++) {
-      this.pixels[i] = transformRowOrColumn(this.pixels[i]);
+
+      redValues[i] = transformRowOrColumn(redValues[i]);
+
+      double[] col = new double[n];
+      for (int j = 0; j < n; j++) {
+        col[j] = redValues[j][i];
+      }
+
+      col = transformRowOrColumn(col);
+
+      for (int j = 0; j < n; j++) {
+        redValues[j][i] = col[j];
+      }
     }
 
-    // Apply transform to each column
-    for (int j = 0; j < n; j++) {
-      Pixel[] column = new Pixel[n];
-      for (int i = 0; i < n; i++) {
-        column[i] = this.pixels[i][j];
-      }
-      column = transformRowOrColumn(column);
-      for (int i = 0; i < n; i++) {
-        this.pixels[i][j] = column[i];
-      }
-    }
+    return redValues;
+
   }
 
-  private Pixel[] transformRowOrColumn(Pixel[] sequence) {
+
+  private double[][] applyHaarTransformGreen(Image paddedImg) {
+    int n = paddedImg.getPixels().length;
+    Image greenChannel = paddedImg.getGreenChannel();
+    Pixel[][] greenPixels = greenChannel.getPixels();
+
+
+    double[][] greenValues = new double[n][n];
+
+
+    for (int i = 0; i < n; i++) {
+      for (int j = 0; j < n; j++) {
+        greenValues[i][j] = greenPixels[i][j].getGreenValue();
+      }
+    }
+
+
+    // Apply transform to each row
+    for (int i = 0; i < n; i++) {
+
+      greenValues[i] = transformRowOrColumn(greenValues[i]);
+
+      double[] col = new double[n];
+      for (int j = 0; j < n; j++) {
+        col[j] = greenValues[j][i];
+      }
+
+      col = transformRowOrColumn(col);
+
+      for (int j = 0; j < n; j++) {
+        greenValues[j][i] = col[j];
+      }
+    }
+
+    return greenValues;
+
+  }
+
+
+  private double[][] applyHaarTransformBlue(Image paddedImg) {
+    int n = paddedImg.getPixels().length;
+    Image blueChannel = paddedImg.getBlueChannel();
+    Pixel[][] bluePixels = blueChannel.getPixels();
+
+    double[][] blueValues = new double[n][n];
+
+
+    for (int i = 0; i < n; i++) {
+      for (int j = 0; j < n; j++) {
+        blueValues[i][j] = bluePixels[i][j].getBlueValue();
+      }
+    }
+
+
+    // Apply transform to each row
+    for (int i = 0; i < n; i++) {
+
+      blueValues[i] = transformRowOrColumn(blueValues[i]);
+
+      double[] col = new double[n];
+      for (int j = 0; j < n; j++) {
+        col[j] = blueValues[j][i];
+      }
+
+      col = transformRowOrColumn(col);
+
+      for (int j = 0; j < n; j++) {
+        blueValues[j][i] = col[j];
+      }
+    }
+
+    return blueValues;
+
+  }
+
+  private double[] transformRowOrColumn(double[] sequence) {
     int n = sequence.length;
-    Pixel[] transformed = new Pixel[n];
+    double[] transformed = new double[n];
     int halfN = n / 2;
 
     for (int i = 0; i < halfN; i++) {
-      Pixel avg = average(sequence[2 * i], sequence[2 * i + 1]);
-      Pixel diff = difference(sequence[2 * i], sequence[2 * i + 1]);
-      transformed[i] = avg;
-      transformed[i + halfN] = diff;
+      double avg = average(sequence[2 * i], sequence[2 * i + 1]);
+      double diff = difference(sequence[2 * i], sequence[2 * i + 1]);
+      transformed[i] = Math.round(avg * 1000.0) / 1000.0;
+      ;
+      transformed[i + halfN] = Math.round(diff * 1000.0) / 1000.0;
+      ;
     }
 
     return transformed;
   }
 
-  private Pixel average(Pixel a, Pixel b) {
-    int avgRed = (a.getRedValue() + b.getRedValue()) / 2;
-    int avgGreen = (a.getGreenValue() + b.getGreenValue()) / 2;
-    int avgBlue = (a.getBlueValue() + b.getBlueValue()) / 2;
-    return new ColorPixel(avgRed, avgGreen, avgBlue);
+  private double average(double a, double b) {
+    return (a + b) / (Math.sqrt(2));
   }
 
-  private Pixel difference(Pixel a, Pixel b) {
-    int diffRed = (a.getRedValue() - b.getRedValue()) / 2;
-    int diffGreen = (a.getGreenValue() - b.getGreenValue()) / 2;
-    int diffBlue = (a.getBlueValue() - b.getBlueValue()) / 2;
-    return new ColorPixel(diffRed, diffGreen, diffBlue);
+  private double difference(double a, double b) {
+    return (a - b) / (Math.sqrt(2));
   }
 
-  private void applyThresholding(float percentage) {
-    List<Integer> redValues = new ArrayList<>();
-    List<Integer> greenValues = new ArrayList<>();
-    List<Integer> blueValues = new ArrayList<>();
+  private void applyThresholding(float percentage,
+                                 double[][] transformedRed, double[][] transformedGreen,
+                                 double[][] transformedBlue) {
+    HashSet<Double> allUniqueValues = new HashSet<>();
 
-    // Flatten and store absolute values for each channel
-    for (Pixel[] row : this.pixels) {
-      for (Pixel pixel : row) {
-        redValues.add(Math.abs(pixel.getRedValue()));
-        greenValues.add(Math.abs(pixel.getGreenValue()));
-        blueValues.add(Math.abs(pixel.getBlueValue()));
-      }
-    }
+    int n = transformedRed.length;
 
-    // Calculate thresholds for each channel
-    int redThreshold = calculateThreshold(redValues, percentage);
-    int greenThreshold = calculateThreshold(greenValues, percentage);
-    int blueThreshold = calculateThreshold(blueValues, percentage);
-
-    // Apply thresholding
-    for (int i = 0; i < this.pixels.length; i++) {
-      for (int j = 0; j < this.pixels[i].length; j++) {
-        Pixel currentPixel = this.pixels[i][j];
-        int redValue = Math.abs(currentPixel.getRedValue())
-                < redThreshold ? 0 : currentPixel.getRedValue();
-        int greenValue = Math.abs(currentPixel.getGreenValue())
-                < greenThreshold ? 0 : currentPixel.getGreenValue();
-        int blueValue = Math.abs(currentPixel.getBlueValue())
-                < blueThreshold ? 0 : currentPixel.getBlueValue();
-        this.pixels[i][j] = new ColorPixel(redValue, greenValue, blueValue);
-      }
-    }
-  }
-
-  private int calculateThreshold(List<Integer> values, float percentage) {
-    int sum = 0;
-    for (int value : values) {
-      sum += value;
-    }
-
-    double mean = sum / (double) values.size();
-
-    double sumOfSquares = 0.0;
-    for (int value : values) {
-      sumOfSquares += Math.pow(value - mean, 2);
-    }
-
-    double stdDev = Math.sqrt(sumOfSquares / values.size());
-
-    double threshold = mean + stdDev * (percentage / 100.0);
-
-    return (int) threshold;
-  }
-
-
-  private void invertHaarTransform() {
-    int n = this.pixels.length;
-
-    // Apply inverse transform to each column
-    for (int j = 0; j < n; j++) {
-      Pixel[] column = new Pixel[n];
-      for (int i = 0; i < n; i++) {
-        column[i] = this.pixels[i][j];
-      }
-      column = inverseTransformRowOrColumn(column);
-      for (int i = 0; i < n; i++) {
-        this.pixels[i][j] = column[i];
-      }
-    }
-
-    // Apply inverse transform to each row
     for (int i = 0; i < n; i++) {
-      this.pixels[i] = inverseTransformRowOrColumn(this.pixels[i]);
+      for (int j = 0; j < n; j++) {
+        allUniqueValues.add(Math.abs(transformedRed[i][j]));
+        allUniqueValues.add(Math.abs(transformedGreen[i][j]));
+        allUniqueValues.add(Math.abs(transformedBlue[i][j]));
+      }
+    }
+
+    List<Double> valuesList = new ArrayList<>(allUniqueValues);
+
+    Collections.sort(valuesList);
+
+    int thresholdIndex = (int) ((percentage / 100) * valuesList.size());
+    double thresholdValue = valuesList.get(thresholdIndex - 1);
+
+    for (int i = 0; i < n; i++) {
+      for (int j = 0; j < n; j++) {
+        transformedRed[i][j] = Math.abs(transformedRed[i][j]) <= thresholdValue ? 0 : transformedRed[i][j];
+        transformedGreen[i][j] = Math.abs(transformedGreen[i][j]) <= thresholdValue ? 0 : transformedGreen[i][j];
+        transformedBlue[i][j] = Math.abs(transformedBlue[i][j]) <= thresholdValue ? 0 : transformedBlue[i][j];
+      }
+    }
+
+  }
+
+
+  private void invertHaarTransform(double[][] transformedValue) {
+    int size = transformedValue.length;
+    int c = 2;
+    while (c <= size) {
+
+      for (int j = 0; j < c; j++) {
+        double[] channelImageColumn = new double[size];
+        // gets the corresponding column from the 2d float array and inverse transform it
+        for (int i = 0; i < size; i++) {
+          channelImageColumn[i] = transformedValue[i][j];
+        }
+
+        double[] partToInverseTransform = Arrays.copyOfRange(channelImageColumn, 0, c);
+        double[] inverseTransformedColumn = I(partToInverseTransform, c);
+        double[] restOfTheColArray = new double[size - c];
+        if (c != size) {
+          restOfTheColArray = Arrays.copyOfRange(channelImageColumn, c, size);
+        }
+        channelImageColumn = arrayConcatnation(inverseTransformedColumn, c, restOfTheColArray,
+                size - c);
+        // assigned the transformed value back to the 2d float array
+        for (int i = 0; i < size; i++) {
+          transformedValue[i][j] = channelImageColumn[i];
+        }
+
+      }
+      for (int i = 0; i < c; i++) {
+        double[] partToInverseTransform = Arrays.copyOfRange(transformedValue[i], 0, c);
+        double[] inverseTransformedRow = I(partToInverseTransform, c);
+        double[] restOfTheRowArray = new double[size - c];
+        if (c != size) {
+          restOfTheRowArray = Arrays.copyOfRange(transformedValue[i], c, size);
+        }
+        transformedValue[i] = arrayConcatnation(inverseTransformedRow, c, restOfTheRowArray,
+                size - c);
+      }
+
+      c = c * 2;
     }
   }
 
-  private Pixel[] inverseTransformRowOrColumn(Pixel[] sequence) {
-    int n = sequence.length;
-    Pixel[] original = new Pixel[n];
-    int halfN = n / 2;
+  private static double[] I(double[] givenArray, int size) {
+    double[] avg = new double[size / 2];
+    double[] diff = new double[size / 2];
+    for (int i = 0; i < size / 2; i++) {
+      double a = givenArray[i];
+      // starts from middle of the givenArray
+      double b = givenArray[(size / 2) + i];
+      double av = (a + b) / Math.sqrt(2);
+      double de = (a - b) / Math.sqrt(2);
+      avg[i] = Math.round(av * 1000.0) / 1000.0;
+      diff[i] = Math.round(de * 1000.0) / 1000.0;
+    }
 
-    for (int i = 0; i < halfN; i++) {
-      Pixel a = sequence[i];
-      Pixel d = sequence[i + halfN];
-      original[2 * i] = reconstruct(a, d, true);
-      original[2 * i + 1] = reconstruct(a, d, false);
+    // creating a list interleaving avg and diff
+    double[] inverseTransformedArray = new double[size];
+    for (int i = 0; i < size; i = i + 2) {
+      inverseTransformedArray[i] = avg[i / 2];
+      inverseTransformedArray[i + 1] = diff[i / 2];
+    }
+    return inverseTransformedArray;
+  }
+
+  private double[] arrayConcatnation(double[] array1, int arraySize1, double[] array2,
+                                     int arraySize2) {
+    double[] resultArray = new double[arraySize1 + arraySize2];
+    System.arraycopy(array1, 0, resultArray, 0, arraySize1);
+    System.arraycopy(array2, 0, resultArray, arraySize1, arraySize2);
+    return resultArray;
+  }
+
+  private double[] inverseTransformRowOrColumn(double[] sequence) {
+    int n = sequence.length;
+    double[] original = new double[n];
+    int halfN = n / 2;
+    int mulN = 1;
+
+    while (mulN < halfN) {
+      int i = 0;
+
+      while (i < mulN) {
+
+        double a = sequence[i];
+        double b = sequence[i + mulN];
+
+        original[i] = average(a, b);
+        original[i + 1] = difference(a, b);
+
+        i = i + 1;
+      }
+      mulN = mulN * 2;
     }
 
     return original;
   }
 
-  private Pixel reconstruct(Pixel avg, Pixel diff, boolean firstElement) {
-    int redValue = firstElement
-            ? avg.getRedValue() + diff.getRedValue()
-            : avg.getRedValue() - diff.getRedValue();
-    int greenValue = firstElement
-            ? avg.getGreenValue() + diff.getGreenValue()
-            : avg.getGreenValue() - diff.getGreenValue();
-    int blueValue = firstElement
-            ? avg.getBlueValue() + diff.getBlueValue()
-            : avg.getBlueValue() - diff.getBlueValue();
-
-    // Clamp the data
-    redValue = Math.max(0, Math.min(255, redValue));
-    greenValue = Math.max(0, Math.min(255, greenValue));
-    blueValue = Math.max(0, Math.min(255, blueValue));
-
-    return new ColorPixel(redValue, greenValue, blueValue);
-  }
-
-  private void undoImage() {
-    Pixel[][] undoPixels = new Pixel[originalHeight][originalWidth];
+  private Image undoImage(double[][] transformedRed, double[][] transformedGreen,
+                          double[][] transformedBlue) {
+    Pixel[][] undoPixels = new Pixel[this.pixels.length][this.pixels[0].length];
 
     for (int i = 0; i < originalHeight; i++) {
       for (int j = 0; j < originalWidth; j++) {
-        undoPixels[i][j] = this.pixels[i][j];
+
+
+        int redValue = Math.min(255, Math.max(0, (int) (transformedRed[i][j])));
+        int greenValue = Math.min(255, Math.max(0, (int) (transformedGreen[i][j])));
+        int blueValue = Math.min(255, Math.max(0, (int) (transformedBlue[i][j])));
+
+
+        undoPixels[i][j] = new ColorPixel(redValue, greenValue, blueValue);
       }
     }
 
-    this.pixels = undoPixels;
+    return new ColorImage(undoPixels);
   }
+
 
   @Override
   public Image filterSplit(float[][] kernel, Integer splitPercentage) {
