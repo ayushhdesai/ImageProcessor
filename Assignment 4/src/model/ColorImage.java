@@ -1,6 +1,5 @@
 package model;
 
-import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -1019,7 +1018,7 @@ public class ColorImage implements Image {
     return getImage(splitPercentage, allTransformedPixels);
   }
 
-  private Image getImage(@Nullable Integer splitPercentage, Pixel[][] allTransformedPixels) {
+  private Image getImage(Integer splitPercentage, Pixel[][] allTransformedPixels) {
     Pixel[][] resultPixels = new Pixel[this.pixels.length][this.pixels[0].length];
 
     int splitColumn = (splitPercentage != null) ? (int) (this.pixels[0].length * (splitPercentage / 100.0)) : this.pixels[0].length;
