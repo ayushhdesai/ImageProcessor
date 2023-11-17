@@ -1,8 +1,8 @@
 package model;
 
-import org.jetbrains.annotations.Nullable;
 
-import java.awt.*;
+import java.awt.Graphics2D;
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,7 +12,6 @@ import java.util.List;
 
 import controller.ImageController;
 
-import static java.lang.Math.sqrt;
 
 /**
  * This class represents a color image with pixels arranged in 2D array.
@@ -108,8 +107,8 @@ public class ColorImage implements Image {
 
     double maxFrequency = Math.max(Math.max(maxRedValue, maxGreenValue), maxBlueValue);
 
-    double xScale = (maxWidth - 50.0) / Math.max(redChannelMap.length, Math.max(greenChannelMap.length,
-            blueChannelMap.length)) * 1.25;
+    double xScale = (maxWidth - 50.0) / Math.max(redChannelMap.length,
+            Math.max(greenChannelMap.length, blueChannelMap.length)) * 1.25;
     double yScale = (maxHeight - 50.0) / maxFrequency * 1.25;
 
 
@@ -150,7 +149,8 @@ public class ColorImage implements Image {
     int greenValueForMaxFrequency = findMaxFrequencyValue(greenChannelMap);
     int blueValueForMaxFrequency = findMaxFrequencyValue(blueChannelMap);
 
-    int avgValue = (redValueForMaxFrequency + greenValueForMaxFrequency + blueValueForMaxFrequency) / 3;
+    int avgValue = (redValueForMaxFrequency + greenValueForMaxFrequency
+            + blueValueForMaxFrequency) / 3;
 
     int redOffset = avgValue - redValueForMaxFrequency;
     int greenOffset = avgValue - greenValueForMaxFrequency;
@@ -164,8 +164,8 @@ public class ColorImage implements Image {
     adjustChannel(greenPixels, greenOffset);
     adjustChannel(bluePixels, blueOffset);
 
-    return combineChannel(new GreyscaleImage(redPixels),
-            new GreyscaleImage(greenPixels), new GreyscaleImage(bluePixels));
+    return combineChannel(new GreyscaleImage(redPixels), new GreyscaleImage(greenPixels),
+            new GreyscaleImage(bluePixels));
   }
 
   @Override
@@ -185,28 +185,31 @@ public class ColorImage implements Image {
     Pixel[][] greenPixels = greenChannel.getPixels();
     Pixel[][] bluePixels = blueChannel.getPixels();
 
-    int A = b * b * (m - w) - b * (m * m - w * w) + w * m * m - m * w * w;
-    int Aa = -b * (-127) + 128 * w - 255 * m;
-    int Ab = b * b * (-127) + 255 * m * m - 128 * w * w;
-    int Ac = b * b * (255 * m - 128 * w) - b * (255 * m * m - 128 * w * w);
+    int aX = b * b * (m - w) - b * (m * m - w * w) + w * m * m - m * w * w;
+    int aA = -b * (-127) + 128 * w - 255 * m;
+    int bA = b * b * (-127) + 255 * m * m - 128 * w * w;
+    int cA = b * b * (255 * m - 128 * w) - b * (255 * m * m - 128 * w * w);
 
-    float a = (float) Aa / A;
-    float bb = (float) Ab / A;
-    float c = (float) Ac / A;
+    float a = (float) aA / aX;
+    float bb = (float) bA / aX;
+    float c = (float) cA / aX;
 
     for (int i = 0; i < redPixels.length; i++) {
       for (int j = 0; j < redPixels[i].length; j++) {
         int xr = redPixels[i][j].getRedValue();
         int xg = greenPixels[i][j].getGreenValue();
         int xb = bluePixels[i][j].getBlueValue();
-        redPixels[i][j] = new GreyPixel((int) Math.max(0, Math.min(255, (a * xr * xr + bb * xr + c))));
-        greenPixels[i][j] = new GreyPixel((int) Math.max(0, Math.min(255, (a * xg * xg + bb * xg + c))));
-        bluePixels[i][j] = new GreyPixel((int) Math.max(0, Math.min(255, (a * xb * xb + bb * xb + c))));
+        redPixels[i][j] = new GreyPixel((int) Math.max(0,
+                Math.min(255, (a * xr * xr + bb * xr + c))));
+        greenPixels[i][j] = new GreyPixel((int) Math.max(0,
+                Math.min(255, (a * xg * xg + bb * xg + c))));
+        bluePixels[i][j] = new GreyPixel((int) Math.max(0,
+                Math.min(255, (a * xb * xb + bb * xb + c))));
       }
     }
 
-    return combineChannel(new GreyscaleImage(redPixels),
-            new GreyscaleImage(greenPixels), new GreyscaleImage(bluePixels));
+    return combineChannel(new GreyscaleImage(redPixels), new GreyscaleImage(greenPixels),
+            new GreyscaleImage(bluePixels));
 
   }
 
@@ -227,8 +230,8 @@ public class ColorImage implements Image {
   private void adjustChannel(Pixel[][] pixels, int offset) {
     for (int i = 0; i < pixels.length; i++) {
       for (int j = 0; j < pixels[i].length; j++) {
-        pixels[i][j] = new GreyPixel(
-                Math.min(255, Math.max(pixels[i][j].getRedValue() + offset, 0)));
+        pixels[i][j] = new GreyPixel(Math.min(255,
+                Math.max(pixels[i][j].getRedValue() + offset, 0)));
       }
     }
   }
@@ -283,8 +286,7 @@ public class ColorImage implements Image {
     Pixel[][] redComponentPixels = new ColorPixel[this.pixels.length][this.pixels[0].length];
     for (int i = 0; i < pixels.length; i++) {
       for (int j = 0; j < pixels[i].length; j++) {
-        redComponentPixels[i][j] =
-                new ColorPixel(this.pixels[i][j].getRedValue(), 0, 0);
+        redComponentPixels[i][j] = new ColorPixel(this.pixels[i][j].getRedValue(), 0, 0);
       }
     }
 
@@ -299,8 +301,7 @@ public class ColorImage implements Image {
     Pixel[][] greenComponentPixels = new ColorPixel[this.pixels.length][this.pixels[0].length];
     for (int i = 0; i < pixels.length; i++) {
       for (int j = 0; j < pixels[i].length; j++) {
-        greenComponentPixels[i][j] =
-                new ColorPixel(0, this.pixels[i][j].getGreenValue(), 0);
+        greenComponentPixels[i][j] = new ColorPixel(0, this.pixels[i][j].getGreenValue(), 0);
       }
     }
 
@@ -315,8 +316,7 @@ public class ColorImage implements Image {
     Pixel[][] blueComponentPixels = new ColorPixel[this.pixels.length][this.pixels[0].length];
     for (int i = 0; i < pixels.length; i++) {
       for (int j = 0; j < pixels[i].length; j++) {
-        blueComponentPixels[i][j] =
-                new ColorPixel(0, 0, this.pixels[i][j].getBlueValue());
+        blueComponentPixels[i][j] = new ColorPixel(0, 0, this.pixels[i][j].getBlueValue());
       }
     }
 
@@ -372,8 +372,8 @@ public class ColorImage implements Image {
 
   @Override
   public Image combineChannel(Image redImage, Image greenImage, Image blueImage) {
-    if (!(redImage instanceof GreyscaleImage) || !(greenImage instanceof GreyscaleImage)
-            || !(blueImage instanceof GreyscaleImage)) {
+    if (!(redImage instanceof GreyscaleImage)
+            || !(greenImage instanceof GreyscaleImage) || !(blueImage instanceof GreyscaleImage)) {
       throw new IllegalArgumentException("Component type is not similar.");
     }
 
@@ -399,7 +399,6 @@ public class ColorImage implements Image {
 
     for (int i = 0; i < pixels.length; i++) {
       for (int j = 0; j < pixels[i].length; j++) {
-        // Horizontal flip we switch the columns
         flippedPixels[i][j] = this.pixels[i][pixels[i].length - 1 - j];
       }
     }
@@ -413,7 +412,6 @@ public class ColorImage implements Image {
 
     for (int i = 0; i < pixels.length; i++) {
       for (int j = 0; j < pixels[i].length; j++) {
-        // Vertical flip we switch the rows
         flippedPixels[i][j] = this.pixels[pixels.length - 1 - i][j];
       }
     }
@@ -427,7 +425,6 @@ public class ColorImage implements Image {
 
     for (int i = 0; i < pixels.length; i++) {
       for (int j = 0; j < pixels[i].length; j++) {
-        // Cannot go beyond 255 because of the range
         int redValue = Math.min(255, Math.max(0, this.pixels[i][j].getRedValue() + alpha));
         int greenValue = Math.min(255, Math.max(0, this.pixels[i][j].getGreenValue() + alpha));
         int blueValue = Math.min(255, Math.max(0, this.pixels[i][j].getBlueValue() + alpha));
@@ -473,9 +470,12 @@ public class ColorImage implements Image {
             int colIndex = j - midcol + y;
 
             if (rowIndex >= 0 && rowIndex < rows && colIndex >= 0 && colIndex < cols) {
-              sumred += (int) (currRedChannelPixels[rowIndex][colIndex].getRedValue() * kernel[x][y]);
-              sumgreen += (int) (currGreenChannelPixels[rowIndex][colIndex].getGreenValue() * kernel[x][y]);
-              sumblue += (int) (currBlueChannelPixels[rowIndex][colIndex].getBlueValue() * kernel[x][y]);
+              sumred += (int) (currRedChannelPixels[rowIndex]
+                      [colIndex].getRedValue() * kernel[x][y]);
+              sumgreen += (int) (currGreenChannelPixels[rowIndex]
+                      [colIndex].getGreenValue() * kernel[x][y]);
+              sumblue += (int) (currBlueChannelPixels[rowIndex]
+                      [colIndex].getBlueValue() * kernel[x][y]);
             }
           }
         }
@@ -626,7 +626,6 @@ public class ColorImage implements Image {
       }
     }
 
-    // Copy original pixels to the new padded array
     for (int i = 0; i < originalHeight; i++) {
       for (int j = 0; j < originalWidth; j++) {
         paddedPixels[i][j] = new ColorPixel(this.pixels[i][j].getRedValue(),
@@ -645,205 +644,63 @@ public class ColorImage implements Image {
     return power;
   }
 
-
-  private double[][] haarTransform(double[][] givenChannelImage, int size) {
-    int c = size;
-    while (c > 1) {
-      for (int i = 0; i < c; i++) {
-        double[] partToTransform = Arrays.copyOfRange(givenChannelImage[i], 0, c);
-        double[] transformedRow = T(partToTransform, c);
-        double[] restOfTheRowArray = new double[size - c];
-        if (c != size) {
-          restOfTheRowArray = Arrays.copyOfRange(givenChannelImage[i], c, size);
+  private double[][] haarTransform(double[][] inputMatrix, int dimension) {
+    int currentDimension = dimension;
+    while (currentDimension > 1) {
+      for (int row = 0; row < currentDimension; row++) {
+        double[] rowSegment = Arrays.copyOfRange(inputMatrix[row], 0, currentDimension);
+        double[] processedRow = processRow(rowSegment, currentDimension);
+        double[] remainingRow = new double[dimension - currentDimension];
+        if (currentDimension != dimension) {
+          remainingRow = Arrays.copyOfRange(inputMatrix[row], currentDimension, dimension);
         }
-        givenChannelImage[i] = arrayConcatnation(transformedRow, c, restOfTheRowArray,
-                size - c);
+        inputMatrix[row] = arrayMerge(processedRow, currentDimension, remainingRow,
+                dimension - currentDimension);
       }
-      for (int j = 0; j < c; j++) {
-        double[] channelImageColumn = new double[size];
-        // gets the corresponding column from the 2d float array and transform it
-        for (int i = 0; i < size; i++) {
-          channelImageColumn[i] = givenChannelImage[i][j];
+      for (int col = 0; col < currentDimension; col++) {
+        double[] columnData = new double[dimension];
+        for (int rowIndex = 0; rowIndex < dimension; rowIndex++) {
+          columnData[rowIndex] = inputMatrix[rowIndex][col];
         }
 
-        double[] partToTransform = Arrays.copyOfRange(channelImageColumn, 0, c);
-        double[] transformedColumn = T(partToTransform, c);
-        double[] restOfTheColArray = new double[size - c];
-        if (c != size) {
-          restOfTheColArray = Arrays.copyOfRange(channelImageColumn, c, size);
+        double[] columnSegment = Arrays.copyOfRange(columnData, 0, currentDimension);
+        double[] processedColumn = processRow(columnSegment, currentDimension);
+        double[] remainingColumn = new double[dimension - currentDimension];
+        if (currentDimension != dimension) {
+          remainingColumn = Arrays.copyOfRange(columnData, currentDimension, dimension);
         }
-        channelImageColumn = arrayConcatnation(transformedColumn, c, restOfTheColArray,
-                size - c);
-        // assigned the transformed value back to the 2d float array
-        for (int i = 0; i < size; i++) {
-          givenChannelImage[i][j] = channelImageColumn[i];
+        columnData = arrayMerge(processedColumn, currentDimension, remainingColumn,
+                dimension - currentDimension);
+        for (int rowIndex = 0; rowIndex < dimension; rowIndex++) {
+          inputMatrix[rowIndex][col] = columnData[rowIndex];
         }
       }
-      c = c / 2;
+      currentDimension /= 2;
     }
-    return givenChannelImage;
+    return inputMatrix;
+  }
+
+  private double[] processRow(double[] dataArray, int length) {
+    double[] average = new double[length / 2];
+    double[] difference = new double[length / 2];
+
+    for (int index = 0; index < length - 1; index += 2) {
+      double avgValue = (dataArray[index] + dataArray[index + 1]) / Math.sqrt(2);
+      double diffValue = (dataArray[index] - dataArray[index + 1]) / Math.sqrt(2);
+      average[index / 2] = Math.round(avgValue * 1000.0) / 1000.0;
+
+      difference[index / 2] = Math.round(diffValue * 1000.0) / 1000.0;
+    }
+    double[] transformedData = new double[length];
+
+    System.arraycopy(average, 0, transformedData, 0, length / 2);
+    System.arraycopy(difference, 0, transformedData, length / 2, length / 2);
+    return transformedData;
   }
 
 
-  private double[] T(double[] givenArray, int size) {
-    double[] avg = new double[size / 2];
-    double[] diff = new double[size / 2];
-
-    for (int i = 0; i < size - 1; i = i + 2) {
-      double av = (givenArray[i] + givenArray[i + 1]) / Math.sqrt(2);
-      double di = (givenArray[i] - givenArray[i + 1]) / Math.sqrt(2);
-      avg[i / 2] = Math.round(av * 1000.0) / 1000.0;
-
-      diff[i / 2] = Math.round(di * 1000.0) / 1000.0;
-    }
-    double[] transformedArray = new double[size];
-
-    System.arraycopy(avg, 0, transformedArray, 0, size / 2);
-    System.arraycopy(diff, 0, transformedArray, size / 2, size / 2);
-    return transformedArray;
-  }
-
-
-  private double[][] applyHaarTransformRed(Image paddedImg) {
-    int n = paddedImg.getPixels().length;
-    Image redChannel = paddedImg.getRedChannel();
-    Pixel[][] redPixels = redChannel.getPixels();
-
-
-    double[][] redValues = new double[n][n];
-
-
-    for (int i = 0; i < n; i++) {
-      for (int j = 0; j < n; j++) {
-        redValues[i][j] = redPixels[i][j].getRedValue();
-      }
-    }
-
-
-    // Apply transform to each row
-    for (int i = 0; i < n; i++) {
-
-      redValues[i] = transformRowOrColumn(redValues[i]);
-
-      double[] col = new double[n];
-      for (int j = 0; j < n; j++) {
-        col[j] = redValues[j][i];
-      }
-
-      col = transformRowOrColumn(col);
-
-      for (int j = 0; j < n; j++) {
-        redValues[j][i] = col[j];
-      }
-    }
-
-    return redValues;
-
-  }
-
-
-  private double[][] applyHaarTransformGreen(Image paddedImg) {
-    int n = paddedImg.getPixels().length;
-    Image greenChannel = paddedImg.getGreenChannel();
-    Pixel[][] greenPixels = greenChannel.getPixels();
-
-
-    double[][] greenValues = new double[n][n];
-
-
-    for (int i = 0; i < n; i++) {
-      for (int j = 0; j < n; j++) {
-        greenValues[i][j] = greenPixels[i][j].getGreenValue();
-      }
-    }
-
-
-    // Apply transform to each row
-    for (int i = 0; i < n; i++) {
-
-      greenValues[i] = transformRowOrColumn(greenValues[i]);
-
-      double[] col = new double[n];
-      for (int j = 0; j < n; j++) {
-        col[j] = greenValues[j][i];
-      }
-
-      col = transformRowOrColumn(col);
-
-      for (int j = 0; j < n; j++) {
-        greenValues[j][i] = col[j];
-      }
-    }
-
-    return greenValues;
-
-  }
-
-
-  private double[][] applyHaarTransformBlue(Image paddedImg) {
-    int n = paddedImg.getPixels().length;
-    Image blueChannel = paddedImg.getBlueChannel();
-    Pixel[][] bluePixels = blueChannel.getPixels();
-
-    double[][] blueValues = new double[n][n];
-
-
-    for (int i = 0; i < n; i++) {
-      for (int j = 0; j < n; j++) {
-        blueValues[i][j] = bluePixels[i][j].getBlueValue();
-      }
-    }
-
-
-    // Apply transform to each row
-    for (int i = 0; i < n; i++) {
-
-      blueValues[i] = transformRowOrColumn(blueValues[i]);
-
-      double[] col = new double[n];
-      for (int j = 0; j < n; j++) {
-        col[j] = blueValues[j][i];
-      }
-
-      col = transformRowOrColumn(col);
-
-      for (int j = 0; j < n; j++) {
-        blueValues[j][i] = col[j];
-      }
-    }
-
-    return blueValues;
-
-  }
-
-  private double[] transformRowOrColumn(double[] sequence) {
-    int n = sequence.length;
-    double[] transformed = new double[n];
-    int halfN = n / 2;
-
-    for (int i = 0; i < halfN; i++) {
-      double avg = average(sequence[2 * i], sequence[2 * i + 1]);
-      double diff = difference(sequence[2 * i], sequence[2 * i + 1]);
-      transformed[i] = Math.round(avg * 1000.0) / 1000.0;
-      ;
-      transformed[i + halfN] = Math.round(diff * 1000.0) / 1000.0;
-      ;
-    }
-
-    return transformed;
-  }
-
-  private double average(double a, double b) {
-    return (a + b) / (Math.sqrt(2));
-  }
-
-  private double difference(double a, double b) {
-    return (a - b) / (Math.sqrt(2));
-  }
-
-  private void applyThresholding(float percentage,
-                                 double[][] transformedRed, double[][] transformedGreen,
-                                 double[][] transformedBlue) {
+  private void applyThresholding(float percentage, double[][] transformedRed,
+                                 double[][] transformedGreen, double[][] transformedBlue) {
     HashSet<Double> allUniqueValues = new HashSet<>();
 
     int n = transformedRed.length;
@@ -865,109 +722,84 @@ public class ColorImage implements Image {
 
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < n; j++) {
-        transformedRed[i][j] = Math.abs(transformedRed[i][j]) <= thresholdValue ? 0 : transformedRed[i][j];
-        transformedGreen[i][j] = Math.abs(transformedGreen[i][j]) <= thresholdValue ? 0 : transformedGreen[i][j];
-        transformedBlue[i][j] = Math.abs(transformedBlue[i][j]) <= thresholdValue ? 0 : transformedBlue[i][j];
+        transformedRed[i][j] = Math.abs(transformedRed[i][j]) <= thresholdValue
+                ? 0 : transformedRed[i][j];
+        transformedGreen[i][j] = Math.abs(transformedGreen[i][j]) <= thresholdValue
+                ? 0 : transformedGreen[i][j];
+        transformedBlue[i][j] = Math.abs(transformedBlue[i][j]) <= thresholdValue
+                ? 0 : transformedBlue[i][j];
       }
     }
 
   }
 
 
-  private void invertHaarTransform(double[][] transformedValue) {
-    int size = transformedValue.length;
-    int c = 2;
-    while (c <= size) {
+  private void invertHaarTransform(double[][] matrixData) {
+    int matrixSize = matrixData.length;
+    int currentStep = 2;
+    while (currentStep <= matrixSize) {
 
-      for (int j = 0; j < c; j++) {
-        double[] channelImageColumn = new double[size];
-        // gets the corresponding column from the 2d float array and inverse transform it
-        for (int i = 0; i < size; i++) {
-          channelImageColumn[i] = transformedValue[i][j];
+      for (int colIndex = 0; colIndex < currentStep; colIndex++) {
+        double[] columnArray = new double[matrixSize];
+        for (int rowIndex = 0; rowIndex < matrixSize; rowIndex++) {
+          columnArray[rowIndex] = matrixData[rowIndex][colIndex];
         }
 
-        double[] partToInverseTransform = Arrays.copyOfRange(channelImageColumn, 0, c);
-        double[] inverseTransformedColumn = I(partToInverseTransform, c);
-        double[] restOfTheColArray = new double[size - c];
-        if (c != size) {
-          restOfTheColArray = Arrays.copyOfRange(channelImageColumn, c, size);
+        double[] segmentForInverse = Arrays.copyOfRange(columnArray, 0, currentStep);
+        double[] reversedColumn = reverseTransform(segmentForInverse, currentStep);
+        double[] remainingColumn = new double[matrixSize - currentStep];
+        if (currentStep != matrixSize) {
+          remainingColumn = Arrays.copyOfRange(columnArray, currentStep, matrixSize);
         }
-        channelImageColumn = arrayConcatnation(inverseTransformedColumn, c, restOfTheColArray,
-                size - c);
-        // assigned the transformed value back to the 2d float array
-        for (int i = 0; i < size; i++) {
-          transformedValue[i][j] = channelImageColumn[i];
+        columnArray = arrayMerge(reversedColumn, currentStep, remainingColumn,
+                matrixSize - currentStep);
+        for (int rowIndex = 0; rowIndex < matrixSize; rowIndex++) {
+          matrixData[rowIndex][colIndex] = columnArray[rowIndex];
         }
 
       }
-      for (int i = 0; i < c; i++) {
-        double[] partToInverseTransform = Arrays.copyOfRange(transformedValue[i], 0, c);
-        double[] inverseTransformedRow = I(partToInverseTransform, c);
-        double[] restOfTheRowArray = new double[size - c];
-        if (c != size) {
-          restOfTheRowArray = Arrays.copyOfRange(transformedValue[i], c, size);
+      for (int rowIndex = 0; rowIndex < currentStep; rowIndex++) {
+        double[] segmentForInverse = Arrays.copyOfRange(matrixData[rowIndex], 0, currentStep);
+        double[] reversedRow = reverseTransform(segmentForInverse, currentStep);
+        double[] remainingRow = new double[matrixSize - currentStep];
+        if (currentStep != matrixSize) {
+          remainingRow = Arrays.copyOfRange(matrixData[rowIndex], currentStep, matrixSize);
         }
-        transformedValue[i] = arrayConcatnation(inverseTransformedRow, c, restOfTheRowArray,
-                size - c);
+        matrixData[rowIndex] = arrayMerge(reversedRow, currentStep, remainingRow,
+                matrixSize - currentStep);
       }
 
-      c = c * 2;
+      currentStep *= 2;
     }
   }
 
-  private static double[] I(double[] givenArray, int size) {
-    double[] avg = new double[size / 2];
-    double[] diff = new double[size / 2];
-    for (int i = 0; i < size / 2; i++) {
-      double a = givenArray[i];
-      // starts from middle of the givenArray
-      double b = givenArray[(size / 2) + i];
-      double av = (a + b) / Math.sqrt(2);
-      double de = (a - b) / Math.sqrt(2);
-      avg[i] = Math.round(av * 1000.0) / 1000.0;
-      diff[i] = Math.round(de * 1000.0) / 1000.0;
+  private static double[] reverseTransform(double[] dataArray, int length) {
+    double[] avgComp = new double[length / 2];
+    double[] diffComp = new double[length / 2];
+    for (int index = 0; index < length / 2; index++) {
+      double compA = dataArray[index];
+      double compB = dataArray[length / 2 + index];
+      double avgValue = (compA + compB) / Math.sqrt(2);
+      double diffValue = (compA - compB) / Math.sqrt(2);
+      avgComp[index] = Math.round(avgValue * 1000.0) / 1000.0;
+      diffComp[index] = Math.round(diffValue * 1000.0) / 1000.0;
     }
 
-    // creating a list interleaving avg and diff
-    double[] inverseTransformedArray = new double[size];
-    for (int i = 0; i < size; i = i + 2) {
-      inverseTransformedArray[i] = avg[i / 2];
-      inverseTransformedArray[i + 1] = diff[i / 2];
+    double[] reversedArray = new double[length];
+    for (int index = 0; index < length; index += 2) {
+      reversedArray[index] = avgComp[index / 2];
+      reversedArray[index + 1] = diffComp[index / 2];
     }
-    return inverseTransformedArray;
+    return reversedArray;
   }
 
-  private double[] arrayConcatnation(double[] array1, int arraySize1, double[] array2,
-                                     int arraySize2) {
+
+  private double[] arrayMerge(double[] array1, int arraySize1, double[] array2,
+                              int arraySize2) {
     double[] resultArray = new double[arraySize1 + arraySize2];
     System.arraycopy(array1, 0, resultArray, 0, arraySize1);
     System.arraycopy(array2, 0, resultArray, arraySize1, arraySize2);
     return resultArray;
-  }
-
-  private double[] inverseTransformRowOrColumn(double[] sequence) {
-    int n = sequence.length;
-    double[] original = new double[n];
-    int halfN = n / 2;
-    int mulN = 1;
-
-    while (mulN < halfN) {
-      int i = 0;
-
-      while (i < mulN) {
-
-        double a = sequence[i];
-        double b = sequence[i + mulN];
-
-        original[i] = average(a, b);
-        original[i + 1] = difference(a, b);
-
-        i = i + 1;
-      }
-      mulN = mulN * 2;
-    }
-
-    return original;
   }
 
   private Image undoImage(double[][] transformedRed, double[][] transformedGreen,
@@ -1014,15 +846,17 @@ public class ColorImage implements Image {
   }
 
   @Override
-  public Image levelAdjustWithSplit(String black, String mid, String white, Integer splitPercentage) {
+  public Image levelAdjustWithSplit(String black, String mid, String white,
+                                    Integer splitPercentage) {
     Pixel[][] allTransformedPixels = this.adjustLevels(black, mid, white).getPixels();
     return getImage(splitPercentage, allTransformedPixels);
   }
 
-  private Image getImage(@Nullable Integer splitPercentage, Pixel[][] allTransformedPixels) {
+  private Image getImage(Integer splitPercentage, Pixel[][] allTransformedPixels) {
     Pixel[][] resultPixels = new Pixel[this.pixels.length][this.pixels[0].length];
 
-    int splitColumn = (splitPercentage != null) ? (int) (this.pixels[0].length * (splitPercentage / 100.0)) : this.pixels[0].length;
+    int splitColumn = (splitPercentage != null) ? (int) (this.pixels[0].length
+            * (splitPercentage / 100.0)) : this.pixels[0].length;
 
     for (int i = 0; i < this.pixels.length; i++) {
       for (int j = 0; j < this.pixels[i].length; j++) {

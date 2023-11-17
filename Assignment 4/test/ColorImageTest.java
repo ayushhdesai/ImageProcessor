@@ -9,6 +9,7 @@ import model.Image;
 import model.Pixel;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -524,4 +525,181 @@ public class ColorImageTest {
     }
   }
 
+  @Test
+  public void testColorCorrect() {
+    ColorImage correctedImage = (ColorImage) testImage.colorCorrect();
+    Pixel[][] correctedPixels = correctedImage.getPixels();
+
+    int[] expectedRedValues = new int[]{255, 0, 0, 128, 255, 0, 85, 170, 255};
+    int[] expectedGreenValues = new int[]{0, 255, 0, 128, 255, 0, 170, 85, 255};
+    int[] expectedBlueValues = new int[]{0, 0, 255, 128, 255, 0, 255, 0, 0};
+
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 3; j++) {
+        assertEquals("Red value should match expected",
+                expectedRedValues[i * 3 + j], correctedPixels[i][j].getRedValue());
+        assertEquals("Green value should match expected",
+                expectedGreenValues[i * 3 + j], correctedPixels[i][j].getGreenValue());
+        assertEquals("Blue value should match expected",
+                expectedBlueValues[i * 3 + j], correctedPixels[i][j].getBlueValue());
+      }
+    }
+  }
+
+
+  @Test
+  public void testColorCorrectPixelChange() {
+    ColorImage colorCorrectedImage = (ColorImage) testImage.colorCorrect();
+
+    boolean isChanged = false;
+    for (int i = 0; i < samplePixels.length; i++) {
+      for (int j = 0; j < samplePixels[i].length; j++) {
+        if (!samplePixels[i][j].equals(colorCorrectedImage.getPixels()[i][j])) {
+          isChanged = true;
+          break;
+        }
+      }
+      if (isChanged) {
+        break;
+      }
+    }
+
+    assertTrue("Pixels should be altered after color correction", isChanged);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testAdjustLevelsInvalidInputOutOfRange() {
+    testImage.adjustLevels("0", "128", "256");
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testAdjustLevelsInvalidInputIncorrectOrder() {
+    testImage.adjustLevels("100", "50", "200");
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testAdjustLevelsInvalidInputEqualValues() {
+    testImage.adjustLevels("100", "100", "100");
+  }
+
+  @Test
+  public void testAdjustLevelsValidInput() {
+    String black = "10";
+    String mid = "128";
+    String white = "200";
+    Image result = testImage.adjustLevels(black, mid, white);
+    assertNotNull(result);
+  }
+
+  @Test
+  public void testAdjustLevelsPixelAdjustment() {
+    String black = "10";
+    String mid = "128";
+    String white = "200";
+    ColorImage adjustedImage = (ColorImage) testImage.adjustLevels(black, mid, white);
+
+    for (Pixel[] row : adjustedImage.getPixels()) {
+      for (Pixel pixel : row) {
+        assertTrue("Red value should be within [0, 255]",
+                pixel.getRedValue() >= 0 && pixel.getRedValue() <= 255);
+        assertTrue("Green value should be within [0, 255]",
+                pixel.getGreenValue() >= 0 && pixel.getGreenValue() <= 255);
+        assertTrue("Blue value should be within [0, 255]",
+                pixel.getBlueValue() >= 0 && pixel.getBlueValue() <= 255);
+      }
+    }
+  }
+
+  @Test
+  public void testAdjustLevels() {
+    ColorImage correctedImage = (ColorImage) testImage.adjustLevels("10", "128", "200");
+    Pixel[][] correctedPixels = correctedImage.getPixels();
+
+    int[] expectedRedValues = new int[]{255, 0, 0, 128, 255, 0, 69, 197, 255};
+    int[] expectedGreenValues = new int[]{0, 255, 0, 128, 255, 0, 197, 69, 255};
+    int[] expectedBlueValues = new int[]{0, 0, 255, 128, 255, 0, 255, 0, 0};
+
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 3; j++) {
+        assertEquals("Red value should match expected",
+                expectedRedValues[i * 3 + j], correctedPixels[i][j].getRedValue());
+        assertEquals("Green value should match expected",
+                expectedGreenValues[i * 3 + j], correctedPixels[i][j].getGreenValue());
+        assertEquals("Blue value should match expected",
+                expectedBlueValues[i * 3 + j], correctedPixels[i][j].getBlueValue());
+      }
+    }
+  }
+
+  @Test
+  public void testGetHistogramDimensions() {
+    Image histogram = testImage.getHistogram();
+    assertEquals("Histogram width should be 256", 256, histogram.getPixels()[0].length);
+    assertEquals("Histogram height should be 256", 256, histogram.getPixels().length);
+  }
+
+  @Test
+  public void testHistogram() {
+    ColorImage correctedImage = (ColorImage) testImage.getHistogram();
+    Pixel[][] correctedPixels = correctedImage.getPixels();
+
+    int[] expectedRedValues = new int[]{0, 192, 192, 0, 255, 255, 0, 255, 255};
+    int[] expectedGreenValues = new int[]{0, 192, 192, 0, 255, 255, 0, 255, 255};
+    int[] expectedBlueValues = new int[]{255, 192, 192, 255, 255, 255, 255, 255, 255};
+
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 3; j++) {
+        assertEquals("Red value should match expected",
+                expectedRedValues[i * 3 + j], correctedPixels[i][j].getRedValue());
+        assertEquals("Green value should match expected",
+                expectedGreenValues[i * 3 + j], correctedPixels[i][j].getGreenValue());
+        assertEquals("Blue value should match expected",
+                expectedBlueValues[i * 3 + j], correctedPixels[i][j].getBlueValue());
+      }
+    }
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testCompressWithInvalidLowPercentage() {
+    testImage.compress(100);
+  }
+
+  @Test
+  public void testCompressWithValidPercentage() {
+    Image compressedImage = testImage.compress(50);
+    assertNotNull("Compressed image should not be null", compressedImage);
+  }
+
+  @Test
+  public void testCompressFunctionality() {
+    float compressionPercentage = 50;
+    ColorImage compressedImage = (ColorImage) testImage.compress(compressionPercentage);
+
+    assertNotNull("Compressed image should not be null", compressedImage);
+
+    boolean isChanged = false;
+    Pixel[][] originalPixels = testImage.getPixels();
+    Pixel[][] compressedPixels = compressedImage.getPixels();
+
+    for (int i = 0; i < originalPixels.length; i++) {
+      for (int j = 0; j < originalPixels[i].length; j++) {
+        if (!originalPixels[i][j].equals(compressedPixels[i][j])) {
+          isChanged = true;
+          break;
+        }
+      }
+      if (isChanged) {
+        break;
+      }
+    }
+    assertTrue("Compressed image should have altered pixel values", isChanged);
+
+    assertEquals("Compressed image should have same width",
+            testImage.getPixels()[0].length, compressedImage.getPixels()[0].length);
+    assertEquals("Compressed image should have same height",
+            testImage.getPixels().length, compressedImage.getPixels().length);
+  }
+
+
 }
+

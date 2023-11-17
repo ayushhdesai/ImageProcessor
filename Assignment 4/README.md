@@ -37,41 +37,70 @@ functions and controllers that manipulate and manage these images.
 9. Main Method - Provides the entry point to the application, creating a user interface
    and facilitating interactions between the user and the underlying image processing capabilities.
 
+# Design changes and Justification:
+
+Integration of New Functionalities
+1. Enhanced Image Interface:
+- The Image interface was extended to include new functionalities. 
+- The ColorImage class, implementing this interface, was updated to support these new functionalities, ensuring a seamless integration with existing structures.
+2. Refactoring for Command Design Pattern:
+- The processCommand method in the ImageController class was refactored to adhere to the Command Design Pattern. This change was made to improve code maintainability, readability, and scalability.
+- By encapsulating each image processing command into its own class, we've made the system more modular and easier to extend with new commands in the future.
+3. Command Line Interface (CLI) Enhancements:
+- The CLI was enhanced to provide users with a choice between interactive command line input and file-based input.
+
+Justification for Design Choices
+1. Adherence to Open-Closed Principle:
+- By extending the Image interface for new functionalities, we adhere to the Open-Closed Principle, allowing our appliation entities to be open for extension but closed for modification. This design choice minimizes the risk of introducing bugs into existing code and eases the addition of new features.
+2. Command Design Pattern Benefits:
+- Implementing the Command Design Pattern in our ImageController enhances the separation of concerns by decoupling the command execution process from the actual command logic.
+
 # Running the program
 
 The application allows us to run the image processing in both the ways :
 
-1) Input from a file:(step-by-step guide)
+Running the Program
+The application supports two modes of running image processing tasks: through a Command Line Script and by using a File as a command. Below are the steps for each method:
 
-- Open Main.java
-- Click on dropdown besides run button.
-- Click on edit configuration
-- The prompt will open where you can select "Add new run configuration..."
-- Name it anything (for clarity "Main with args")
-- Under Build & Run fill the Main class as "Main" and Program Arguments as "/the path to the txt
-  file"
-  Example ("C:/Users/Ayush/OneDrive/Desktop/ProgramDesignParadigm/output.txt"), put it in quotes
-- Click on Apply
-- Click Ok
-- Now run the program using the run button and all the commands in the txt file will run.
-- Make sure the input and the ouput path of the image in the txt file commands is set according to
-  your file locations.
-- Finally, open the location which you set in the txt file to look at the new images formed.
+1. Command Line Script Mode
+- When you run the program, you will be presented with two options.
+- Choose option 1 for Command Line Script mode.
+- Once selected, the interactive mode will start, and you can input script commands directly on the command line.
+- Refer to the USEME file for a list of supported script commands and usage examples.
 
-2) Input as command Line Argument:
+2. File as Command Mode
+- When you run the program, choose option 2 for File as Command mode.
+- You will be prompted to enter the file path. Input the full path to the text file containing the script commands (e.g., C:/Users/Ayush/res/output.txt).
+- Ensure that the file contains valid script commands as outlined in the USEME file.
+- The program will execute all the commands in the text file.
+- Check the output directory specified in your text file to view the processed images.
 
-- You need to add a new configure the same as above, just this time leave the Program Argument
-  Empty.
-- Now click Apply and click Ok and run the file.
-- The interactive mode will start running and now you can put in script commands on the command
-  line.
-- You can review the output.txt file provided to copy paste the commands.
+Steps to Run the Program
+- Open Main.java.
+- Run the program using the run button in your IDE.
+- Select the desired mode (1 or 2) as per the instructions above.
+
+Additional Notes
+- Ensure that the input and output paths of the images in the script commands (whether entered via command line or specified in the file) are correctly set according to your file locations.
 
 Example :
 
 - load "image/path" loadImg
 - sepia loadImg load_sepia
 - save "output_path/sepia.jpg" load_sepia
+
+# Running the JAR file
+
+- Open a command prompt.
+- Use the cd command to navigate to the directory where ImageProcessing.jar is located.
+- Type java -jar ImageProcessing.jar and press Enter. This command will start the application.
+- After launch of the application, follow the steps in "Running the program".
+
+# Text files submitted
+
+- output.txt has all the commands of Assignment 4 and Assignment 5.
+- assign5.txt/assign5-back.txt has all commands of Assignment 5.
+- test.txt is used for testing.
 
 # Test Image
 

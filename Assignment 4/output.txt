@@ -1,4 +1,26 @@
 load C:/Users/Ayush/res/test.jpg loadImg
+compress 20 loadImg tImg
+save C:/Users/Ayush/res/test-compress-20.png tImg
+compress 50 loadImg fImg
+save C:/Users/Ayush/res/test-compress-50.png fImg
+compress 90 loadImg nImg
+save C:/Users/Ayush/res/test-compress-90.png nImg
+histogram loadImg hImg
+save C:/Users/Ayush/res/test-histogram.jpg hImg
+color-correct loadImg cImg
+save C:/Users/Ayush/res/test-color-correct.jpg cImg
+levels-adjust 20 30 40 loadImg laImg
+save C:/Users/Ayush/res/test-levels-adjust.jpg laImg
+levels-adjust 0 100 255 loadImg laImg1
+save C:/Users/Ayush/res/test-levels-adjust.jpg laImg1
+histogram laImg1 hist-level-adjust
+save C:/Users/Ayush/res/test-level-adjust-hist.jpg hist-level-adjust
+sepia loadImg sepiaImg split 40
+save C:/Users/Ayush/res/test-sepia-split.jpg sepiaImg
+sharpen loadImg sharpenImg split 90
+save C:/Users/Ayush/res/test-sharpen-split.jpg sharpenImg
+blur loadImg blurImg split 60
+save C:/Users/Ayush/res/test-blur-split.jpg blurImg
 red-component loadImg redImg
 save C:/Users/Ayush/res/test-redComp.jpg redImg
 blue-component loadImg blueImg

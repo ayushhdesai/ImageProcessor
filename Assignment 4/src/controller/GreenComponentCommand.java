@@ -2,12 +2,23 @@ package controller;
 
 import model.Image;
 
-public class GreenComponentCommand implements Command{
+/**
+ * A command that visualizes the Green Component of the image.
+ */
+public class GreenComponentCommand implements Command {
   private ImageController controller;
   private String inputImageKey;
   private String outputImageKey;
 
-  public GreenComponentCommand(ImageController controller, String inputImageKey, String outputImageKey) {
+  /**
+   * Constructs a new GreenComponentCommand with the specified parameters.
+   *
+   * @param controller     to facilitate image processing operations.
+   * @param inputImageKey  used to retrieve the input image.
+   * @param outputImageKey used to store the processed image.
+   */
+  public GreenComponentCommand(ImageController controller, String inputImageKey,
+                               String outputImageKey) {
     this.controller = controller;
     this.inputImageKey = inputImageKey;
     this.outputImageKey = outputImageKey;

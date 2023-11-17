@@ -144,7 +144,7 @@ public class ImageController {
    */
   public void processCommand(String commandLine) throws IOException {
     String[] parts = commandLine.split(" ");
-    Command command;
+    controller.Command command;
 
     switch (parts[0]) {
       case "load":
@@ -168,7 +168,8 @@ public class ImageController {
         if (parts.length == 8 && "split".equals(parts[6])) {
           per = Integer.parseInt(parts[7]);
         }
-        command = new LevelsAdjustCommand(this, parts[1], parts[2], parts[3], parts[4], parts[5], per);
+        command = new LevelsAdjustCommand(this, parts[1], parts[2], parts[3],
+                parts[4], parts[5], per);
         break;
 
       case "sepia":
@@ -258,7 +259,7 @@ public class ImageController {
         break;
 
       default:
-        throw new IllegalArgumentException("Invalid command");
+        throw new IllegalArgumentException("Please enter a valid command!");
     }
 
     command.execute();
