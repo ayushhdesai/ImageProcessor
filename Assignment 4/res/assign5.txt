@@ -9,8 +9,12 @@ histogram loadImg hImg
 save C:/Users/Ayush/res/test-histogram.jpg hImg
 color-correct loadImg cImg
 save C:/Users/Ayush/res/test-color-correct.jpg cImg
+histogram cImg hImg1
+save C:/Users/Ayush/res/test-color-correct-hist.jpg hImg1
 levels-adjust 20 30 40 loadImg laImg
 save C:/Users/Ayush/res/test-levels-adjust.jpg laImg
+histogram laImg hImg2
+save C:/Users/Ayush/res/test-level-adjust-hist.jpg hImg2
 levels-adjust 0 100 255 loadImg laImg1
 save C:/Users/Ayush/res/test-levels-adjust.jpg laImg1
 sepia loadImg sepiaImg split 40
