@@ -13,6 +13,7 @@ import javax.imageio.ImageIO;
 
 import model.ColorPixel;
 import model.Pixel;
+import view.View;
 
 /**
  * This class acts as the controller tp run script commands.
@@ -20,7 +21,15 @@ import model.Pixel;
 public class ImageController {
 
   Map<String, model.Image> imageMap = new HashMap<>();
+  Features features;
+  View view;
 
+
+  public void setView(View view){
+      this.view = view;
+      features = new FeaturesImpl(imageMap,view);
+      view.addFeatures(features);
+  }
   /**
    * Load an image from the given path.
    *
