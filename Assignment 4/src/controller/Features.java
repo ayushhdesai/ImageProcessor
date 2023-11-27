@@ -17,4 +17,12 @@ public interface Features {
     void visualizeBlueComponent();
 
     void loadHistogram();
+
+    void blurImage();
+    void applySharpen();
+    void convertToGreyscale();
+    void convertToSepia();
+    void applyCompression();
+    void colorCorrect();
+    void adjustLevels();
 }

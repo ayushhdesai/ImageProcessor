@@ -14,4 +14,9 @@ public interface View {
     BufferedImage getImage();
     void addFeatures(Features features);
 
+    float getCompressionPercentage();
+
+    String[] getLevelAdjustments();
+
+    void saveImage();
 }
