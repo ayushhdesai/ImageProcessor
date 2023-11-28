@@ -21,36 +21,67 @@ public class Main {
    */
   public static void main(String[] args) {
     ImageController imageController = new ImageController();
-
     Scanner scanner = new Scanner(System.in);
 
-    System.out.println("1. Command Line Script");
-    System.out.println("2. File as command");
-    System.out.println("3. GUI");
-    System.out.println("Select an option (1, 2 or 3):");
+    try{
+      if(args.length>0){
+        String choice = args[0];
 
-    String choice = scanner.nextLine();
+        switch(choice){
+          case "-file":
+            String filePath = args[1];
+            List<String> fileCommands = Files.readAllLines(Paths.get(filePath));
+            imageController.processCommands(fileCommands);
+            break;
 
-    try {
-      if ("1".equals(choice)) {
-        imageController.interactiveMode();
-      } else if ("2".equals(choice)) {
-        System.out.print("Enter file path: ");
-        String filePath = scanner.nextLine().trim();
-        List<String> fileCommands = Files.readAllLines(Paths.get(filePath));
-        imageController.processCommands(fileCommands);
-      } else if ("3".equals(choice)) {
+          case "-text":
+            imageController.interactiveMode();
+            break;
+
+          default:
+            throw new IOException("Invalid command");
+        }
+      }
+      else {
         View view = new ImageProcessingGUI();
         imageController.setView(view);
-      } else {
-        imageController.interactiveMode();
       }
     } catch (IOException e) {
-      System.err.println("An error occurred: " + e.getMessage());
-      e.printStackTrace();
+            System.err.println("An error occurred: " + e.getMessage());
+            e.printStackTrace();
     } finally {
       scanner.close();
     }
+
+//    Scanner scanner = new Scanner(System.in);
+//
+//    System.out.println("1. Command Line Script");
+//    System.out.println("2. File as command");
+//    System.out.println("3. GUI");
+//    System.out.println("Select an option (1, 2 or 3):");
+//
+//    String choice = scanner.nextLine();
+//
+//    try {
+//      if ("1".equals(choice)) {
+//        imageController.interactiveMode();
+//      } else if ("2".equals(choice)) {
+//        System.out.print("Enter file path: ");
+//        String filePath = scanner.nextLine().trim();
+//        List<String> fileCommands = Files.readAllLines(Paths.get(filePath));
+//        imageController.processCommands(fileCommands);
+//      } else if ("3".equals(choice)) {
+//        View view = new ImageProcessingGUI();
+//        imageController.setView(view);
+//      } else {
+//        imageController.interactiveMode();
+//      }
+//    } catch (IOException e) {
+//      System.err.println("An error occurred: " + e.getMessage());
+//      e.printStackTrace();
+//    } finally {
+//      scanner.close();
+//    }
   }
 
 }

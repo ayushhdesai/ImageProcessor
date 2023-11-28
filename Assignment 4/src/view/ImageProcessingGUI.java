@@ -245,11 +245,11 @@ public class ImageProcessingGUI implements View {
   }
 
 
-  public static void main(String[] args) {
-    SwingUtilities.invokeLater(() -> {
-      ImageProcessingGUI gui = new ImageProcessingGUI();
-    });
-  }
+//  public static void main(String[] args) {
+//    SwingUtilities.invokeLater(() -> {
+//      ImageProcessingGUI gui = new ImageProcessingGUI();
+//    });
+//  }
 
   @Override
   public void addFeatures(Features features) {

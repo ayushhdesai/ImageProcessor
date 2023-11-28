@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="ProgramDesignParadigm:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/ProgramDesignParadigm_jar</output-path>
+    <root id="archive" name="ProgramDesignParadigm.jar">
+      <element id="module-output" name="ProgramDesignParadigm" />
+    </root>
+  </artifact>
+</component>
