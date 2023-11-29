@@ -13,7 +13,7 @@ import controller.Features;
 import controller.ImageUtil;
 
 public class ImageProcessingGUI implements View {
-  private final JScrollPane scrollPane;
+  private JScrollPane scrollPane;
   private JFrame frame;
   private JLabel imageLabel;
   private JLabel histogramLabel;
@@ -47,8 +47,6 @@ public class ImageProcessingGUI implements View {
     scrollPane = new JScrollPane(imageLabel);
     scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
     scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-    histogramLabel = new JLabel();
-    histogramLabel.setHorizontalAlignment(JLabel.SOUTH_EAST);
 
     loadButton = new JButton("Load Image");
     saveButton = new JButton("Save Image");
@@ -64,10 +62,12 @@ public class ImageProcessingGUI implements View {
     visualizeRedButton = new JButton("Visualize Red Component");
     visualizeGreenButton = new JButton("Visualize Green Component");
     visualizeBlueButton = new JButton("Visualize Blue Component");
+    setButtonsEnabled(false);
 
     splitViewCheckbox = new JCheckBox("Split View");
-    splitPercentageSlider = new JSlider(0, 100); // Assuming 0-100% for split
-    splitPercentageSlider.setValue(50); // Default value
+    previewLabel = new JLabel("50");
+    splitPercentageSlider = new JSlider(0, 100);
+    splitPercentageSlider.setValue(50);
     splitPercentageSlider.setMajorTickSpacing(10);
     splitPercentageSlider.setPaintTicks(true);
     splitPercentageSlider.setPaintLabels(true);
@@ -76,9 +76,8 @@ public class ImageProcessingGUI implements View {
     mainPanel.add(scrollPane, BorderLayout.CENTER);
 
     frame.add(mainPanel, BorderLayout.CENTER);
-    frame.add(histogramLabel, BorderLayout.SOUTH);
-    frame.add(createButtonPanel(), BorderLayout.WEST);
-    frame.add(createOptionsPanel(), BorderLayout.EAST);
+    frame.add(createButtonPanel(), BorderLayout.NORTH);
+    frame.add(createOptionsPanel(), BorderLayout.WEST);
 
 
     frame.setVisible(true);
@@ -86,10 +85,13 @@ public class ImageProcessingGUI implements View {
 
 
   private JPanel createButtonPanel() {
-
     JPanel buttonPanel = new JPanel();
-    buttonPanel.setLayout(new GridLayout(12, 1));
+    buttonPanel.setLayout(new GridLayout(2, 7));
+
+    loadButton.setBackground(new Color(153, 204, 255));
     buttonPanel.add(loadButton);
+
+    saveButton.setBackground(new Color(204, 255, 204));
     buttonPanel.add(saveButton);
     buttonPanel.add(flipVerticalButton);
     buttonPanel.add(flipHorizontalButton);
@@ -100,28 +102,74 @@ public class ImageProcessingGUI implements View {
     buttonPanel.add(compressButton);
     buttonPanel.add(colorCorrectButton);
     buttonPanel.add(adjustLevelsButton);
-    buttonPanel.add(visualizeRedButton);
-    buttonPanel.add(visualizeGreenButton);
-    buttonPanel.add(visualizeBlueButton);
 
+    visualizeRedButton.setBackground(new Color(255, 0, 0));
+    buttonPanel.add(visualizeRedButton);
+
+    visualizeGreenButton.setBackground(new Color(0, 255, 0));
+    buttonPanel.add(visualizeGreenButton);
+
+    visualizeBlueButton.setBackground(new Color(0, 0, 255));
+    buttonPanel.add(visualizeBlueButton);
 
     return buttonPanel;
   }
 
+
   private JPanel createOptionsPanel() {
-    JPanel optionsPanel = new JPanel();
-    optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.PAGE_AXIS)); // Use BoxLayout for vertical stacking
+    JPanel optionsPanel = new JPanel(new GridBagLayout());
+    GridBagConstraints gbc = new GridBagConstraints();
+    gbc.gridx = 0;
+    gbc.gridy = GridBagConstraints.RELATIVE;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.anchor = GridBagConstraints.NORTH;
+    gbc.weightx = 1.0;
+    gbc.insets = new Insets(2, 2, 2, 2);
 
-    optionsPanel.add(splitViewCheckbox);
+    optionsPanel.add(splitViewCheckbox, gbc);
+    JPanel splitPercentagePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+    splitPercentagePanel.add(new JLabel("Split Percentage:"));
+    splitPercentagePanel.add(previewLabel);
+    optionsPanel.add(splitPercentagePanel, gbc);
 
-    optionsPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.weighty = 0;
+    optionsPanel.add(splitPercentageSlider, gbc);
 
-    optionsPanel.add(new JLabel("Split Percentage:"));
-    optionsPanel.add(splitPercentageSlider);
-    splitPercentageSlider.setEnabled(splitViewCheckbox.isSelected());
-    splitViewCheckbox.addItemListener(e -> splitPercentageSlider.setEnabled(splitViewCheckbox.isSelected()));
+    gbc.weighty = 1.0;
+    gbc.fill = GridBagConstraints.BOTH;
+    histogramLabel = new JLabel();
+    histogramLabel.setHorizontalAlignment(JLabel.CENTER);
+    optionsPanel.add(histogramLabel, gbc);
+
+    splitPercentageSlider.addChangeListener(e -> {
+      int value = splitPercentageSlider.getValue();
+      previewLabel.setText(String.valueOf(value));
+      splitPercentageSlider.setEnabled(splitViewCheckbox.isSelected());
+    });
+
+    splitViewCheckbox.addItemListener(e -> {
+      splitPercentageSlider.setEnabled(splitViewCheckbox.isSelected());
+      previewLabel.setVisible(splitViewCheckbox.isSelected());
+    });
 
     return optionsPanel;
+  }
+
+  private void setButtonsEnabled(boolean enabled) {
+    saveButton.setEnabled(enabled);
+    flipVerticalButton.setEnabled(enabled);
+    flipHorizontalButton.setEnabled(enabled);
+    blurButton.setEnabled(enabled);
+    sharpenButton.setEnabled(enabled);
+    greyscaleButton.setEnabled(enabled);
+    sepiaButton.setEnabled(enabled);
+    compressButton.setEnabled(enabled);
+    colorCorrectButton.setEnabled(enabled);
+    adjustLevelsButton.setEnabled(enabled);
+    visualizeRedButton.setEnabled(enabled);
+    visualizeGreenButton.setEnabled(enabled);
+    visualizeBlueButton.setEnabled(enabled);
   }
 
 
@@ -201,6 +249,7 @@ public class ImageProcessingGUI implements View {
         imageLabel.setIcon(icon);
         imageLabel.setHorizontalAlignment(JLabel.CENTER);
         imageLabel.setVerticalAlignment(JLabel.CENTER);
+        setButtonsEnabled(true);
       }
     } catch (IOException e) {
       e.printStackTrace();
@@ -267,21 +316,24 @@ public class ImageProcessingGUI implements View {
 
   @Override
   public int getSplitPercentage() {
-    return splitPercentageSlider.getValue();
+    int n = splitPercentageSlider.getValue();
+    if (n == 0 || n == 100) {
+      JOptionPane.showMessageDialog(frame, "Invalid input. Please enter percentage between 1 to 99.", "Percentage Error", JOptionPane.ERROR_MESSAGE);
+      return -1;
+    }
+    return n;
   }
 
   public void displayPreviewImage(BufferedImage image) {
-    ImageIcon previewIcon = new ImageIcon(image);
+    int newWidth = image.getWidth();
+    int newHeight = image.getHeight();
+
+    Image scaledImage = image.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
+    ImageIcon previewIcon = new ImageIcon(scaledImage);
+
     JLabel previewImageLabel = new JLabel(previewIcon);
     JOptionPane.showMessageDialog(frame, previewImageLabel, "Preview", JOptionPane.PLAIN_MESSAGE);
   }
-
-
-//  public static void main(String[] args) {
-//    SwingUtilities.invokeLater(() -> {
-//      ImageProcessingGUI gui = new ImageProcessingGUI();
-//    });
-//  }
 
   @Override
   public void addFeatures(Features features) {
@@ -431,7 +483,7 @@ public class ImageProcessingGUI implements View {
         splitViewCheckbox.setSelected(false);
         splitPercentageSlider.setEnabled(false);
       } else {
-        features.loadImage();
+        features.applyCompression();
       }
     });
     colorCorrectButton.addActionListener(e -> {

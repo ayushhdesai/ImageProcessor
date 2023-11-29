@@ -8,7 +8,7 @@ import model.GreyscaleImage;
 import model.Image;
 import view.View;
 
-public class FeaturesImpl implements Features{
+public class FeaturesImpl implements Features {
   private Map<String, model.Image> imageMap;
 
   private Image image;
@@ -34,9 +34,7 @@ public class FeaturesImpl implements Features{
           {0.272F, 0.534F, 0.131F}
   };
 
-  public FeaturesImpl(){}
-
-  public FeaturesImpl(Map<String, Image> imageMap, View view){
+  public FeaturesImpl(Map<String, Image> imageMap, View view) {
     this.imageMap = imageMap;
     this.view = view;
   }
@@ -54,11 +52,11 @@ public class FeaturesImpl implements Features{
 
   @Override
   public void verticalFlip() {
-      BufferedImage bufferedImage = view.getImage();
-      Image imageToFlip = new ColorImage(ImageController.convertToPixels(bufferedImage));
-      Image flipped = imageToFlip.verticalFlip();
-      view.displayImage(ImageController.convertToBufferedImage(flipped.getPixels()));
-      this.loadHistogram();
+    BufferedImage bufferedImage = view.getImage();
+    Image imageToFlip = new ColorImage(ImageController.convertToPixels(bufferedImage));
+    Image flipped = imageToFlip.verticalFlip();
+    view.displayImage(ImageController.convertToBufferedImage(flipped.getPixels()));
+    this.loadHistogram();
   }
 
   @Override
@@ -150,6 +148,7 @@ public class FeaturesImpl implements Features{
     view.displayImage(ImageController.convertToBufferedImage(compressedImage.getPixels()));
     this.loadHistogram();
   }
+
   @Override
   public void colorCorrect() {
     BufferedImage bufferedImage = view.getImage();
@@ -175,7 +174,6 @@ public class FeaturesImpl implements Features{
     Image image = new ColorImage(ImageController.convertToPixels(bufferedImage));
     Image blurImg = image.filterSplit(blurKernel, splitPercentage);
     BufferedImage img = ImageController.convertToBufferedImage(blurImg.getPixels());
-    this.loadHistogram();
     return img;
   }
 
@@ -185,7 +183,6 @@ public class FeaturesImpl implements Features{
     Image image = new ColorImage(ImageController.convertToPixels(bufferedImage));
     Image sharpenImg = image.filterSplit(sharpenKernel, splitPercentage);
     BufferedImage img = ImageController.convertToBufferedImage(sharpenImg.getPixels());
-    this.loadHistogram();
     return img;
   }
 
@@ -195,7 +192,6 @@ public class FeaturesImpl implements Features{
     Image image = new ColorImage(ImageController.convertToPixels(bufferedImage));
     Image sepiaImg = image.linearTransformWithSplit(sepiaMatrix, splitPercentage);
     BufferedImage img = ImageController.convertToBufferedImage(sepiaImg.getPixels());
-    this.loadHistogram();
     return img;
   }
 
@@ -206,7 +202,6 @@ public class FeaturesImpl implements Features{
     Image image = new ColorImage(ImageController.convertToPixels(bufferedImage));
     Image adjustLevelsImg = image.levelAdjustWithSplit(levelValues[0], levelValues[1], levelValues[2], splitPercentage);
     BufferedImage img = ImageController.convertToBufferedImage(adjustLevelsImg.getPixels());
-    this.loadHistogram();
     return img;
   }
 
@@ -216,7 +211,6 @@ public class FeaturesImpl implements Features{
     Image image = new ColorImage(ImageController.convertToPixels(bufferedImage));
     Image lumaComponent = image.lumaWithSplit(splitPercentage);
     BufferedImage img = ImageController.convertToBufferedImage(lumaComponent.getPixels());
-    this.loadHistogram();
     return img;
   }
 
@@ -226,7 +220,6 @@ public class FeaturesImpl implements Features{
     Image image = new ColorImage(ImageController.convertToPixels(bufferedImage));
     Image colorCorrectImg = image.colorCorrectWithSplit(splitPercentage);
     BufferedImage img = ImageController.convertToBufferedImage(colorCorrectImg.getPixels());
-    this.loadHistogram();
     return img;
   }
 

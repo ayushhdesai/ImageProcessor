@@ -859,6 +859,10 @@ public class ColorImage implements Image {
   }
 
   private Image getImage(Integer splitPercentage, Pixel[][] allTransformedPixels) {
+    if (splitPercentage < 1 || splitPercentage > 99) {
+      throw new IllegalArgumentException("Percentage should be between 1 to 99(numbers included)");
+    }
+
     Pixel[][] resultPixels = new Pixel[this.pixels.length][this.pixels[0].length];
 
     int splitColumn = (splitPercentage != null) ? (int) (this.pixels[0].length
