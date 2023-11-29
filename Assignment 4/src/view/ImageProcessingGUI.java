@@ -181,26 +181,30 @@ public class ImageProcessingGUI implements View {
     try {
       JFileChooser fileChooser = new JFileChooser();
       fileChooser.setDialogTitle("Select an Image");
-      fileChooser.setFileFilter(new
-              FileNameExtensionFilter("Image files", "jpg", "png", "ppm"));
+      fileChooser.setFileFilter(new FileNameExtensionFilter("Image files", "jpg", "png", "ppm"));
 
       int returnValue = fileChooser.showOpenDialog(frame);
 
       if (returnValue == JFileChooser.APPROVE_OPTION) {
         File selectedFile = fileChooser.getSelectedFile();
+        String ext = getFileExtension(selectedFile.getName());
 
-        BufferedImage image = ImageIO.read(selectedFile);
+        BufferedImage image;
+
+        if ("ppm".equalsIgnoreCase(ext)) {
+          image = ImageUtil.readPPM(selectedFile.getAbsolutePath());
+        } else {
+          image = ImageIO.read(selectedFile);
+        }
 
         ImageIcon icon = new ImageIcon(image);
-
         imageLabel.setIcon(icon);
-
         imageLabel.setHorizontalAlignment(JLabel.CENTER);
         imageLabel.setVerticalAlignment(JLabel.CENTER);
       }
     } catch (IOException e) {
       e.printStackTrace();
-      JOptionPane.showMessageDialog(frame, "Error loading the image.", "Error", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(frame, "Error loading the image: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
   }
 
