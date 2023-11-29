@@ -19,4 +19,5 @@ public interface View {
     String[] getLevelAdjustments();
 
     void saveImage();
+    int getSplitPercentage();
 }

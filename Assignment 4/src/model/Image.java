@@ -190,4 +190,6 @@ public interface Image {
    * @return an image after levels adjust correction applied to a portion.
    */
   Image levelAdjustWithSplit(String black, String mid, String white, Integer splitPercentage);
+
+  Image lumaWithSplit(Integer splitPercentage);
 }

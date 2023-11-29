@@ -846,6 +846,12 @@ public class ColorImage implements Image {
   }
 
   @Override
+  public Image lumaWithSplit(Integer splitPercentage) {
+    Pixel[][] allTransformedPixels = this.getLuma().getPixels();
+    return getImage(splitPercentage, allTransformedPixels);
+  }
+
+  @Override
   public Image levelAdjustWithSplit(String black, String mid, String white,
                                     Integer splitPercentage) {
     Pixel[][] allTransformedPixels = this.adjustLevels(black, mid, white).getPixels();

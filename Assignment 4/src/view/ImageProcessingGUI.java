@@ -12,8 +12,6 @@ import java.io.IOException;
 import controller.Features;
 import controller.ImageUtil;
 
-import static controller.ImageUtil.writePPM;
-
 public class ImageProcessingGUI implements View {
   private final JScrollPane scrollPane;
   private JFrame frame;
@@ -29,12 +27,13 @@ public class ImageProcessingGUI implements View {
   private JButton sepiaButton;
   private JButton compressButton;
   private JButton colorCorrectButton;
-
   private JButton visualizeRedButton;
   private JButton visualizeGreenButton;
   private JButton visualizeBlueButton;
   private JButton adjustLevelsButton;
   private JSlider splitPercentageSlider;
+  private JCheckBox splitViewCheckbox;
+  private JLabel previewLabel;
 
 
   public ImageProcessingGUI() {
@@ -66,14 +65,17 @@ public class ImageProcessingGUI implements View {
     visualizeGreenButton = new JButton("Visualize Green Component");
     visualizeBlueButton = new JButton("Visualize Blue Component");
 
-    splitPercentageSlider = new JSlider(0, 100);
-    splitPercentageSlider.setValue(50);
+    splitViewCheckbox = new JCheckBox("Split View");
+    splitPercentageSlider = new JSlider(0, 100); // Assuming 0-100% for split
+    splitPercentageSlider.setValue(50); // Default value
     splitPercentageSlider.setMajorTickSpacing(10);
-    splitPercentageSlider.setMinorTickSpacing(1);
     splitPercentageSlider.setPaintTicks(true);
     splitPercentageSlider.setPaintLabels(true);
 
-    frame.add(scrollPane, BorderLayout.CENTER);
+    JPanel mainPanel = new JPanel(new BorderLayout());
+    mainPanel.add(scrollPane, BorderLayout.CENTER);
+
+    frame.add(mainPanel, BorderLayout.CENTER);
     frame.add(histogramLabel, BorderLayout.SOUTH);
     frame.add(createButtonPanel(), BorderLayout.WEST);
     frame.add(createOptionsPanel(), BorderLayout.EAST);
@@ -107,11 +109,21 @@ public class ImageProcessingGUI implements View {
   }
 
   private JPanel createOptionsPanel() {
-
     JPanel optionsPanel = new JPanel();
-    optionsPanel.setLayout(new GridLayout(1, 1));
+    optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.PAGE_AXIS)); // Use BoxLayout for vertical stacking
+
+    optionsPanel.add(splitViewCheckbox);
+
+    optionsPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+
+    optionsPanel.add(new JLabel("Split Percentage:"));
+    optionsPanel.add(splitPercentageSlider);
+    splitPercentageSlider.setEnabled(splitViewCheckbox.isSelected());
+    splitViewCheckbox.addItemListener(e -> splitPercentageSlider.setEnabled(splitViewCheckbox.isSelected()));
+
     return optionsPanel;
   }
+
 
   public void saveImage() {
     BufferedImage image = getImage();
@@ -122,24 +134,36 @@ public class ImageProcessingGUI implements View {
 
     JFileChooser fileChooser = new JFileChooser();
     fileChooser.setDialogTitle("Save Image");
-    fileChooser.setFileFilter(new FileNameExtensionFilter("PNG Image", "png"));
-    fileChooser.setFileFilter(new FileNameExtensionFilter("JPEG Image", "jpg", "jpeg"));
-    fileChooser.setFileFilter(new FileNameExtensionFilter("PPM Image", "ppm"));
+    fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("PNG Images", "png"));
+    fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("JPEG Images", "jpg", "jpeg"));
+    fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("PPM Images", "ppm"));
+    fileChooser.setAcceptAllFileFilterUsed(false);
 
-    int returnValue = fileChooser.showSaveDialog(frame);
-    if (returnValue == JFileChooser.APPROVE_OPTION) {
+    int userSelection = fileChooser.showSaveDialog(frame);
+
+    if (userSelection == JFileChooser.APPROVE_OPTION) {
       File fileToSave = fileChooser.getSelectedFile();
       String ext = getFileExtension(fileToSave.getName());
+      if (ext.isEmpty()) {
+        JOptionPane.showMessageDialog(frame, "Invalid file format.", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+      }
 
       try {
-        if ("ppm".equalsIgnoreCase(ext)) {
-          ImageUtil.writePPM(image, fileToSave.getAbsolutePath());
-        } else if ("png".equalsIgnoreCase(ext)) {
-          ImageIO.write(image, "PNG", fileToSave);
-        } else if ("jpg".equalsIgnoreCase(ext) || "jpeg".equalsIgnoreCase(ext)) {
-          ImageIO.write(image, "JPEG", fileToSave);
-        } else {
-          JOptionPane.showMessageDialog(frame, "Invalid file format.", "Error", JOptionPane.ERROR_MESSAGE);
+        switch (ext.toLowerCase()) {
+          case "ppm":
+            ImageUtil.writePPM(image, fileToSave.getAbsolutePath());
+            break;
+          case "png":
+            ImageIO.write(image, "PNG", fileToSave);
+            break;
+          case "jpg":
+          case "jpeg":
+            ImageIO.write(image, "JPEG", fileToSave);
+            break;
+          default:
+            JOptionPane.showMessageDialog(frame, "Unsupported file format: " + ext, "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
       } catch (IOException ex) {
         JOptionPane.showMessageDialog(frame, "Error saving the image: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -149,11 +173,7 @@ public class ImageProcessingGUI implements View {
 
   private String getFileExtension(String fileName) {
     int i = fileName.lastIndexOf('.');
-    if (i > 0) {
-      return fileName.substring(i + 1);
-    } else {
-      return "";
-    }
+    return (i > 0) ? fileName.substring(i + 1) : "";
   }
 
 
@@ -194,9 +214,7 @@ public class ImageProcessingGUI implements View {
   @Override
   public void displayHistogram(BufferedImage bufferedImage) {
     ImageIcon icon = new ImageIcon(bufferedImage);
-
     histogramLabel.setIcon(icon);
-
     histogramLabel.setHorizontalAlignment(JLabel.CENTER);
     histogramLabel.setVerticalAlignment(JLabel.CENTER);
   }
@@ -205,8 +223,7 @@ public class ImageProcessingGUI implements View {
   @Override
   public BufferedImage getImage() {
     ImageIcon imageIcon = (ImageIcon) imageLabel.getIcon();
-    BufferedImage bufferedImage = (BufferedImage) imageIcon.getImage();
-    return bufferedImage;
+    return (BufferedImage) imageIcon.getImage();
   }
 
   @Override
@@ -244,6 +261,17 @@ public class ImageProcessingGUI implements View {
     return null;
   }
 
+  @Override
+  public int getSplitPercentage() {
+    return splitPercentageSlider.getValue();
+  }
+
+  public void displayPreviewImage(BufferedImage image) {
+    ImageIcon previewIcon = new ImageIcon(image);
+    JLabel previewImageLabel = new JLabel(previewIcon);
+    JOptionPane.showMessageDialog(frame, previewImageLabel, "Preview", JOptionPane.PLAIN_MESSAGE);
+  }
+
 
 //  public static void main(String[] args) {
 //    SwingUtilities.invokeLater(() -> {
@@ -253,20 +281,173 @@ public class ImageProcessingGUI implements View {
 
   @Override
   public void addFeatures(Features features) {
-    loadButton.addActionListener(e -> features.loadImage());
-    saveButton.addActionListener(e -> features.saveImage());
-    flipVerticalButton.addActionListener(e -> features.verticalFlip());
-    flipHorizontalButton.addActionListener(e -> features.horizontalFlip());
-    visualizeRedButton.addActionListener(e -> features.visualizeRedComponent());
-    visualizeGreenButton.addActionListener(e -> features.visualizeGreenComponent());
-    visualizeBlueButton.addActionListener(e -> features.visualizeBlueComponent());
-    blurButton.addActionListener(e -> features.blurImage());
-    sharpenButton.addActionListener(e -> features.applySharpen());
-    greyscaleButton.addActionListener(e -> features.convertToGreyscale());
-    sepiaButton.addActionListener(e -> features.convertToSepia());
-    compressButton.addActionListener(e -> features.applyCompression());
-    colorCorrectButton.addActionListener(e -> features.colorCorrect());
-    adjustLevelsButton.addActionListener(e -> features.adjustLevels());
+    loadButton.addActionListener(e -> {
+      if (splitViewCheckbox.isSelected()) {
+        JOptionPane.showMessageDialog(
+                frame,
+                "This functionality doesn't support split view.",
+                "Feature Not Supported",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+        splitViewCheckbox.setSelected(false);
+        splitPercentageSlider.setEnabled(false);
+      } else {
+        features.loadImage();
+      }
+    });
+    saveButton.addActionListener(e -> {
+      if (splitViewCheckbox.isSelected()) {
+        JOptionPane.showMessageDialog(
+                frame,
+                "This functionality doesn't support split view.",
+                "Feature Not Supported",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+        splitViewCheckbox.setSelected(false);
+        splitPercentageSlider.setEnabled(false);
+      } else {
+        features.saveImage();
+      }
+    });
+    flipVerticalButton.addActionListener(e -> {
+      if (splitViewCheckbox.isSelected()) {
+        JOptionPane.showMessageDialog(
+                frame,
+                "This functionality doesn't support split view.",
+                "Feature Not Supported",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+        splitViewCheckbox.setSelected(false);
+        splitPercentageSlider.setEnabled(false);
+      } else {
+        features.verticalFlip();
+      }
+    });
+    flipHorizontalButton.addActionListener(e -> {
+      if (splitViewCheckbox.isSelected()) {
+        JOptionPane.showMessageDialog(
+                frame,
+                "This functionality doesn't support split view.",
+                "Feature Not Supported",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+        splitViewCheckbox.setSelected(false);
+        splitPercentageSlider.setEnabled(false);
+      } else {
+        features.horizontalFlip();
+      }
+    });
+    visualizeRedButton.addActionListener(e -> {
+      if (splitViewCheckbox.isSelected()) {
+        JOptionPane.showMessageDialog(
+                frame,
+                "This functionality doesn't support split view.",
+                "Feature Not Supported",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+        splitViewCheckbox.setSelected(false);
+        splitPercentageSlider.setEnabled(false);
+      } else {
+        features.visualizeRedComponent();
+      }
+    });
+    visualizeGreenButton.addActionListener(e -> {
+      if (splitViewCheckbox.isSelected()) {
+        JOptionPane.showMessageDialog(
+                frame,
+                "This functionality doesn't support split view.",
+                "Feature Not Supported",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+        splitViewCheckbox.setSelected(false);
+        splitPercentageSlider.setEnabled(false);
+      } else {
+        features.visualizeGreenComponent();
+      }
+    });
+    visualizeBlueButton.addActionListener(e -> {
+      if (splitViewCheckbox.isSelected()) {
+        JOptionPane.showMessageDialog(
+                frame,
+                "This functionality doesn't support split view.",
+                "Feature Not Supported",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+        splitViewCheckbox.setSelected(false);
+        splitPercentageSlider.setEnabled(false);
+      } else {
+        features.visualizeBlueComponent();
+      }
+    });
+    blurButton.addActionListener(e -> {
+      if (splitViewCheckbox.isSelected()) {
+        int splitPercentage = getSplitPercentage();
+        BufferedImage previewImage = features.blurImageWithSplit(splitPercentage);
+        displayPreviewImage(previewImage);
+      } else {
+        features.blurImage();
+      }
+    });
+
+    sharpenButton.addActionListener(e -> {
+      if (splitViewCheckbox.isSelected()) {
+        int splitPercentage = getSplitPercentage();
+        BufferedImage previewImage = features.sharpenImageWithSplit(splitPercentage);
+        displayPreviewImage(previewImage);
+      } else {
+        features.applySharpen();
+      }
+    });
+    greyscaleButton.addActionListener(e -> {
+      if (splitViewCheckbox.isSelected()) {
+        int splitPercentage = getSplitPercentage();
+        BufferedImage previewImage = features.greyscaleImageWithSplit(splitPercentage);
+        displayPreviewImage(previewImage);
+      } else {
+        features.convertToGreyscale();
+      }
+    });
+    sepiaButton.addActionListener(e -> {
+      if (splitViewCheckbox.isSelected()) {
+        int splitPercentage = getSplitPercentage();
+        BufferedImage previewImage = features.sepiaImageWithSplit(splitPercentage);
+        displayPreviewImage(previewImage);
+      } else {
+        features.convertToSepia();
+      }
+    });
+    compressButton.addActionListener(e -> {
+      if (splitViewCheckbox.isSelected()) {
+        JOptionPane.showMessageDialog(
+                frame,
+                "This functionality doesn't support split view.",
+                "Feature Not Supported",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+        splitViewCheckbox.setSelected(false);
+        splitPercentageSlider.setEnabled(false);
+      } else {
+        features.loadImage();
+      }
+    });
+    colorCorrectButton.addActionListener(e -> {
+      if (splitViewCheckbox.isSelected()) {
+        int splitPercentage = getSplitPercentage();
+        BufferedImage previewImage = features.colorCorrectionImageWithSplit(splitPercentage);
+        displayPreviewImage(previewImage);
+      } else {
+        features.colorCorrect();
+      }
+    });
+    adjustLevelsButton.addActionListener(e -> {
+      if (splitViewCheckbox.isSelected()) {
+        int splitPercentage = getSplitPercentage();
+        BufferedImage previewImage = features.levelsAdjustImageWithSplit(splitPercentage);
+        displayPreviewImage(previewImage);
+      } else {
+        features.adjustLevels();
+      }
+    });
   }
 
 
