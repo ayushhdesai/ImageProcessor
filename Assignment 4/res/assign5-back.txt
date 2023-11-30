@@ -1,7 +1,0 @@
-load C:/Users/Ayush/res/back.jpg loadImg
-compress 20 loadImg tImg
-save C:/Users/Ayush/res/test-compress-20.png tImg
-compress 50 loadImg fImg
-save C:/Users/Ayush/res/test-compress-50.png fImg
-compress 90 loadImg nImg
-save C:/Users/Ayush/res/test-compress-90.png nImg

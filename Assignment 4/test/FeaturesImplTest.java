@@ -2,13 +2,18 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
 import java.util.HashMap;
 
 import controller.FeaturesImpl;
 import view.View;
+
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 
+/**
+ * Junit test file for FeaturesImpl class.
+ */
 public class FeaturesImplTest {
 
   @Mock

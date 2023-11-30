@@ -16,17 +16,17 @@ public class Main {
   /**
    * The main method to run the application.
    *
-   * @param args to run a file or via command line.
+   * @param args to run a file/interactive mode via command line.
    */
   public static void main(String[] args) {
     ImageController imageController = new ImageController();
     Scanner scanner = new Scanner(System.in);
 
-    try{
-      if(args.length>0){
+    try {
+      if (args.length > 0) {
         String choice = args[0];
 
-        switch(choice){
+        switch (choice) {
           case "-file":
             String filePath = args[1];
             List<String> fileCommands = Files.readAllLines(Paths.get(filePath));
@@ -40,14 +40,13 @@ public class Main {
           default:
             throw new IOException("Invalid command");
         }
-      }
-      else {
+      } else {
         View view = new ImageProcessingGUI();
         imageController.setView(view);
       }
     } catch (IOException e) {
-            System.err.println("An error occurred: " + e.getMessage());
-            e.printStackTrace();
+      System.err.println("An error occurred: " + e.getMessage());
+      e.printStackTrace();
     } finally {
       scanner.close();
     }

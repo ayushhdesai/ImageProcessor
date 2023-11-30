@@ -184,12 +184,18 @@ public interface Image {
    * Applies an adjust levels to a portion of the image.
    *
    * @param black           the black point value for adjustment.
-   * @param mid             the midtone point value for adjustment.
+   * @param mid             the mid point value for adjustment.
    * @param white           the white point value for adjustment.
    * @param splitPercentage the percentage of image to apply the adjust levels on.
    * @return an image after levels adjust correction applied to a portion.
    */
   Image levelAdjustWithSplit(String black, String mid, String white, Integer splitPercentage);
 
+  /**
+   * Applies luma to a portion of the image.
+   *
+   * @param splitPercentage the percentage of image to apply the adjust levels on.
+   * @return an image after luma is applied to a portion.
+   */
   Image lumaWithSplit(Integer splitPercentage);
 }

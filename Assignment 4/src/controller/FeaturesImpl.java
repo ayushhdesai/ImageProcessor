@@ -8,8 +8,12 @@ import model.GreyscaleImage;
 import model.Image;
 import view.View;
 
+/**
+ * Implementation of the Features interface, providing various image processing operations.
+ * This class handles image transformations such as flipping, color adjustments, filtering,
+ * and compression, etc., using the methods defined in the ColorImage class.
+ */
 public class FeaturesImpl implements Features {
-  private Map<String, model.Image> imageMap;
 
   private Image image;
   private View view;
@@ -34,8 +38,13 @@ public class FeaturesImpl implements Features {
           {0.272F, 0.534F, 0.131F}
   };
 
+  /**
+   * Constructs a FeaturesImpl with a specified image map and view.
+   *
+   * @param imageMap map linking image names to their respective Image objects.
+   * @param view     view interface to interact with the user interface.
+   */
   public FeaturesImpl(Map<String, Image> imageMap, View view) {
-    this.imageMap = imageMap;
     this.view = view;
   }
 
@@ -200,7 +209,8 @@ public class FeaturesImpl implements Features {
     String[] levelValues = view.getLevelAdjustments();
     BufferedImage bufferedImage = view.getImage();
     Image image = new ColorImage(ImageController.convertToPixels(bufferedImage));
-    Image adjustLevelsImg = image.levelAdjustWithSplit(levelValues[0], levelValues[1], levelValues[2], splitPercentage);
+    Image adjustLevelsImg = image.levelAdjustWithSplit(levelValues[0],
+            levelValues[1], levelValues[2], splitPercentage);
     BufferedImage img = ImageController.convertToBufferedImage(adjustLevelsImg.getPixels());
     return img;
   }

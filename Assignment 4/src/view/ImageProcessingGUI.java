@@ -1,10 +1,28 @@
 package view;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JScrollPane;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JSlider;
+import javax.swing.JCheckBox;
+import javax.swing.JPanel;
+import javax.swing.JOptionPane;
+import javax.swing.JFileChooser;
+import javax.swing.ImageIcon;
+import javax.swing.JTextField;
+import javax.swing.Box;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+import java.awt.Color;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
+import java.awt.FlowLayout;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -12,8 +30,11 @@ import java.io.IOException;
 import controller.Features;
 import controller.ImageUtil;
 
+/**
+ * GUI implementation of an image processing application.
+ * This class provides graphical user interface for image manipulation.
+ */
 public class ImageProcessingGUI implements View {
-  private JScrollPane scrollPane;
   private JFrame frame;
   private JLabel imageLabel;
   private JLabel histogramLabel;
@@ -35,16 +56,18 @@ public class ImageProcessingGUI implements View {
   private JCheckBox splitViewCheckbox;
   private JLabel previewLabel;
 
-
+  /**
+   * Constructor for a ImageProcessingGUI and initializes the GUI components.
+   */
   public ImageProcessingGUI() {
     frame = new JFrame("Image Processing Application");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.setSize(800, 600);
+    frame.setSize(1024, 768);
     frame.setLayout(new BorderLayout());
 
     imageLabel = new JLabel();
     imageLabel.setHorizontalAlignment(JLabel.CENTER);
-    scrollPane = new JScrollPane(imageLabel);
+    JScrollPane scrollPane = new JScrollPane(imageLabel);
     scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
     scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
@@ -128,7 +151,7 @@ public class ImageProcessingGUI implements View {
 
     optionsPanel.add(splitViewCheckbox, gbc);
     JPanel splitPercentagePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
-    splitPercentagePanel.add(new JLabel("Split Percentage:"));
+    splitPercentagePanel.add(new JLabel("Preview Split Percentage:"));
     splitPercentagePanel.add(previewLabel);
     optionsPanel.add(splitPercentagePanel, gbc);
 
@@ -172,19 +195,23 @@ public class ImageProcessingGUI implements View {
     visualizeBlueButton.setEnabled(enabled);
   }
 
-
+  @Override
   public void saveImage() {
     BufferedImage image = getImage();
     if (image == null) {
-      JOptionPane.showMessageDialog(frame, "No image to save.", "Error", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(frame,
+              "No image to save.", "Error", JOptionPane.ERROR_MESSAGE);
       return;
     }
 
     JFileChooser fileChooser = new JFileChooser();
     fileChooser.setDialogTitle("Save Image");
-    fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("PNG Images", "png"));
-    fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("JPEG Images", "jpg", "jpeg"));
-    fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("PPM Images", "ppm"));
+    fileChooser.addChoosableFileFilter(
+            new FileNameExtensionFilter("PNG Images", "png"));
+    fileChooser.addChoosableFileFilter(
+            new FileNameExtensionFilter("JPEG Images", "jpg", "jpeg"));
+    fileChooser.addChoosableFileFilter(
+            new FileNameExtensionFilter("PPM Images", "ppm"));
     fileChooser.setAcceptAllFileFilterUsed(false);
 
     int userSelection = fileChooser.showSaveDialog(frame);
@@ -193,7 +220,8 @@ public class ImageProcessingGUI implements View {
       File fileToSave = fileChooser.getSelectedFile();
       String ext = getFileExtension(fileToSave.getName());
       if (ext.isEmpty()) {
-        JOptionPane.showMessageDialog(frame, "Invalid file format.", "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(
+                frame, "Invalid file format.", "Error", JOptionPane.ERROR_MESSAGE);
         return;
       }
 
@@ -210,11 +238,12 @@ public class ImageProcessingGUI implements View {
             ImageIO.write(image, "JPEG", fileToSave);
             break;
           default:
-            JOptionPane.showMessageDialog(frame, "Unsupported file format: " + ext, "Error", JOptionPane.ERROR_MESSAGE);
-            return;
+            JOptionPane.showMessageDialog(
+                    frame, "Unsupported file format: " + ext, "Error", JOptionPane.ERROR_MESSAGE);
         }
       } catch (IOException ex) {
-        JOptionPane.showMessageDialog(frame, "Error saving the image: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(frame,
+                "Error saving the image: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
       }
     }
   }
@@ -224,12 +253,13 @@ public class ImageProcessingGUI implements View {
     return (i > 0) ? fileName.substring(i + 1) : "";
   }
 
-
+  @Override
   public void loadImage() {
     try {
       JFileChooser fileChooser = new JFileChooser();
       fileChooser.setDialogTitle("Select an Image");
-      fileChooser.setFileFilter(new FileNameExtensionFilter("Image files", "jpg", "png", "ppm"));
+      fileChooser.setFileFilter(
+              new FileNameExtensionFilter("Image files", "jpg", "png", "ppm"));
 
       int returnValue = fileChooser.showOpenDialog(frame);
 
@@ -253,7 +283,9 @@ public class ImageProcessingGUI implements View {
       }
     } catch (IOException e) {
       e.printStackTrace();
-      JOptionPane.showMessageDialog(frame, "Error loading the image: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(
+              frame, "Error loading the image: " + e.getMessage(),
+              "Error", JOptionPane.ERROR_MESSAGE);
     }
   }
 
@@ -281,11 +313,15 @@ public class ImageProcessingGUI implements View {
 
   @Override
   public float getCompressionPercentage() {
-    String input = JOptionPane.showInputDialog(frame, "Enter compression percentage(1-99):", "Compression", JOptionPane.QUESTION_MESSAGE);
+    String input = JOptionPane.showInputDialog(
+            frame, "Enter compression percentage(1-99):",
+            "Compression", JOptionPane.QUESTION_MESSAGE);
     try {
       return Integer.parseInt(input);
     } catch (NumberFormatException e) {
-      JOptionPane.showMessageDialog(frame, "Invalid input. Please enter a number.", "Error", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(
+              frame, "Invalid input. Please enter a number.",
+              "Error", JOptionPane.ERROR_MESSAGE);
       return -1;
     }
   }
@@ -306,8 +342,9 @@ public class ImageProcessingGUI implements View {
     myPanel.add(new JLabel("White:"));
     myPanel.add(whiteField);
 
-    int result = JOptionPane.showConfirmDialog(null, myPanel,
-            "Please Enter Black, Mid and White Values", JOptionPane.OK_CANCEL_OPTION);
+    int result = JOptionPane.showConfirmDialog(
+            null, myPanel, "Please Enter Black, Mid and White Values",
+            JOptionPane.OK_CANCEL_OPTION);
     if (result == JOptionPane.OK_OPTION) {
       return new String[]{blackField.getText(), midField.getText(), whiteField.getText()};
     }
@@ -318,12 +355,15 @@ public class ImageProcessingGUI implements View {
   public int getSplitPercentage() {
     int n = splitPercentageSlider.getValue();
     if (n == 0 || n == 100) {
-      JOptionPane.showMessageDialog(frame, "Invalid input. Please enter percentage between 1 to 99.", "Percentage Error", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(
+              frame, "Invalid input. Please enter percentage between 1 to 99.",
+              "Percentage Error", JOptionPane.ERROR_MESSAGE);
       return -1;
     }
     return n;
   }
 
+  @Override
   public void displayPreviewImage(BufferedImage image) {
     int newWidth = image.getWidth();
     int newHeight = image.getHeight();
@@ -340,11 +380,8 @@ public class ImageProcessingGUI implements View {
     loadButton.addActionListener(e -> {
       if (splitViewCheckbox.isSelected()) {
         JOptionPane.showMessageDialog(
-                frame,
-                "This functionality doesn't support split view.",
-                "Feature Not Supported",
-                JOptionPane.INFORMATION_MESSAGE
-        );
+                frame, "This functionality doesn't support split view.",
+                "Feature Not Supported", JOptionPane.INFORMATION_MESSAGE);
         splitViewCheckbox.setSelected(false);
         splitPercentageSlider.setEnabled(false);
       } else {
@@ -354,11 +391,8 @@ public class ImageProcessingGUI implements View {
     saveButton.addActionListener(e -> {
       if (splitViewCheckbox.isSelected()) {
         JOptionPane.showMessageDialog(
-                frame,
-                "This functionality doesn't support split view.",
-                "Feature Not Supported",
-                JOptionPane.INFORMATION_MESSAGE
-        );
+                frame, "This functionality doesn't support split view.",
+                "Feature Not Supported", JOptionPane.INFORMATION_MESSAGE);
         splitViewCheckbox.setSelected(false);
         splitPercentageSlider.setEnabled(false);
       } else {
@@ -368,11 +402,8 @@ public class ImageProcessingGUI implements View {
     flipVerticalButton.addActionListener(e -> {
       if (splitViewCheckbox.isSelected()) {
         JOptionPane.showMessageDialog(
-                frame,
-                "This functionality doesn't support split view.",
-                "Feature Not Supported",
-                JOptionPane.INFORMATION_MESSAGE
-        );
+                frame, "This functionality doesn't support split view.",
+                "Feature Not Supported", JOptionPane.INFORMATION_MESSAGE);
         splitViewCheckbox.setSelected(false);
         splitPercentageSlider.setEnabled(false);
       } else {
@@ -382,11 +413,8 @@ public class ImageProcessingGUI implements View {
     flipHorizontalButton.addActionListener(e -> {
       if (splitViewCheckbox.isSelected()) {
         JOptionPane.showMessageDialog(
-                frame,
-                "This functionality doesn't support split view.",
-                "Feature Not Supported",
-                JOptionPane.INFORMATION_MESSAGE
-        );
+                frame, "This functionality doesn't support split view.",
+                "Feature Not Supported", JOptionPane.INFORMATION_MESSAGE);
         splitViewCheckbox.setSelected(false);
         splitPercentageSlider.setEnabled(false);
       } else {
@@ -396,11 +424,8 @@ public class ImageProcessingGUI implements View {
     visualizeRedButton.addActionListener(e -> {
       if (splitViewCheckbox.isSelected()) {
         JOptionPane.showMessageDialog(
-                frame,
-                "This functionality doesn't support split view.",
-                "Feature Not Supported",
-                JOptionPane.INFORMATION_MESSAGE
-        );
+                frame, "This functionality doesn't support split view.",
+                "Feature Not Supported", JOptionPane.INFORMATION_MESSAGE);
         splitViewCheckbox.setSelected(false);
         splitPercentageSlider.setEnabled(false);
       } else {
@@ -410,11 +435,8 @@ public class ImageProcessingGUI implements View {
     visualizeGreenButton.addActionListener(e -> {
       if (splitViewCheckbox.isSelected()) {
         JOptionPane.showMessageDialog(
-                frame,
-                "This functionality doesn't support split view.",
-                "Feature Not Supported",
-                JOptionPane.INFORMATION_MESSAGE
-        );
+                frame, "This functionality doesn't support split view.",
+                "Feature Not Supported", JOptionPane.INFORMATION_MESSAGE);
         splitViewCheckbox.setSelected(false);
         splitPercentageSlider.setEnabled(false);
       } else {
@@ -424,11 +446,8 @@ public class ImageProcessingGUI implements View {
     visualizeBlueButton.addActionListener(e -> {
       if (splitViewCheckbox.isSelected()) {
         JOptionPane.showMessageDialog(
-                frame,
-                "This functionality doesn't support split view.",
-                "Feature Not Supported",
-                JOptionPane.INFORMATION_MESSAGE
-        );
+                frame, "This functionality doesn't support split view.",
+                "Feature Not Supported", JOptionPane.INFORMATION_MESSAGE);
         splitViewCheckbox.setSelected(false);
         splitPercentageSlider.setEnabled(false);
       } else {
@@ -475,11 +494,8 @@ public class ImageProcessingGUI implements View {
     compressButton.addActionListener(e -> {
       if (splitViewCheckbox.isSelected()) {
         JOptionPane.showMessageDialog(
-                frame,
-                "This functionality doesn't support split view.",
-                "Feature Not Supported",
-                JOptionPane.INFORMATION_MESSAGE
-        );
+                frame, "This functionality doesn't support split view.",
+                "Feature Not Supported", JOptionPane.INFORMATION_MESSAGE);
         splitViewCheckbox.setSelected(false);
         splitPercentageSlider.setEnabled(false);
       } else {

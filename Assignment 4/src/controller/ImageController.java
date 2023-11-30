@@ -24,12 +24,17 @@ public class ImageController {
   Features features;
   View view;
 
-
-  public void setView(View view){
-      this.view = view;
-      features = new FeaturesImpl(imageMap,view);
-      view.addFeatures(features);
+  /**
+   * Sets the view for this controller and initializes the features.
+   *
+   * @param view to be associated with this controller.
+   */
+  public void setView(View view) {
+    this.view = view;
+    features = new FeaturesImpl(imageMap, view);
+    view.addFeatures(features);
   }
+
   /**
    * Load an image from the given path.
    *
@@ -177,8 +182,8 @@ public class ImageController {
         if (parts.length == 8 && "split".equals(parts[6])) {
           per = Integer.parseInt(parts[7]);
         }
-        command = new LevelsAdjustCommand(this, parts[1], parts[2], parts[3],
-                parts[4], parts[5], per);
+        command = new LevelsAdjustCommand(this, parts[1], parts[2],
+                parts[3], parts[4], parts[5], per);
         break;
 
       case "sepia":

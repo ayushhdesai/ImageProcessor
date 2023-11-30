@@ -1,3 +1,0 @@
-load C:/Users/Ayush/res/test.jpg loadImg
-compress 20 loadImg tImg
-save C:/Users/Ayush/res/test-compress-20.png tImg
