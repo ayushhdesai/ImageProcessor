@@ -1,10 +1,23 @@
-Introduction
+# Introduction
 
-This USEME file provides guidance on how to use the script commands supported by our application. 
-The application offers a variety of image processing functionalities, below you will find detailed instructions on each command, 
-example usages, and any specific conditions or sequence requirements for the commands.
+This document provides guidance on using our image processing application, which offers a variety of 
+functionalities for image manipulation and analysis. The application can be operated in different modes, 
+including GUI, file-based, and interactive command-line modes.
 
-Command List and Usage Examples
+# Application Modes
+1. GUI Mode
+   Usage: Run the application without any command-line arguments.
+   Description: Launches the graphical user interface, allowing users to interact with the application 
+   through a user-friendly visual platform.
+2. File-Based Mode
+   Usage: java -jar ImageProcessing.jar -file [filePath]
+   Example: java -jar ImageProcessing.jar -file commands.txt
+   Description: Processes a list of commands from a specified file. Each line in the file should contain one command.
+3. Interactive Command-Line Mode
+   Usage: java -jar ImageProcessing.jar -text
+   Description: Enters an interactive mode where commands can be typed and executed one at a time in the console.
+
+# Command List and Usage Examples
 
 1. Load Image
 - Command: load [path] [imageKey]
@@ -105,7 +118,8 @@ Command List and Usage Examples
 -- rgb-combine test-red-tint test-red test-green test-blue
 - Description: Splits the image into RGB components and then combines them back. Each component is associated with its respective key.
 
-Notes on Command Usage
+# Notes on Command Usage
 - The load command must be executed before any other command to ensure the image is available for processing.
 - The save command should be the final step to persist the processed image.
 - Ensure the target keys used in commands are unique to avoid overwriting previously processed images.
+- The GUI mode provides a more intuitive experience, suitable for users who prefer a visual approach to image processing.

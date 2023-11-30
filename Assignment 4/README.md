@@ -1,8 +1,9 @@
 # Overview
 
-This assignment aims to represent the various functionalities that can be applied to an input image.
-The architecture separates the representation of an image and its pixels from the utility
-functions and controllers that manipulate and manage these images.
+This assignment provides an image processing application that facilitates a range of functionalities 
+for image manipulation. The application's architecture distinctively separates image 
+representation from image processing controllers and utilities, with a strong emphasis on user interaction through a 
+graphical user interface, file-based or interactive mode style.
 
 # Classes & Interfaces :
 
@@ -34,75 +35,60 @@ functions and controllers that manipulate and manage these images.
    Interacts with the Model classes (like ColorImage and GreyscaleImage)
    and uses ImageUtil for any necessary image operations.
 
-9. Main Method - Provides the entry point to the application, creating a user interface
-   and facilitating interactions between the user and the underlying image processing capabilities.
+9. Features (Interface): Defines a set of methods for various image processing operations, supporting 
+   functionalities in a view. These operations include loading and saving images, applying 
+   different transformations and effects, and visualizing image components.
+
+10. FeaturesImpl (Class): Implements the Features interface, handling various image transformations such as 
+    flipping, color adjustments, filtering, and compression,etc. This class operates in conjunction with the 
+    ImageController and View to provide a comprehensive image processing experience.
+
+11. View (Interface): Defines essential methods for image processing, specifically tailored for GUI interaction. 
+    This interface standardizes functions such as loading and displaying images, displaying histograms, and handling 
+    user inputs for various image processing operations.
+
+12. ImageProcessingGUI (Class): Implements the View interface, offering a graphical user interface for image manipulation. 
+    It includes features like buttons for various image operations (e.g., flipping, blurring, color correction), 
+    sliders for adjustable parameters, and interactive components for real-time image processing feedback.
+
+13. Main Method - Provides the entry point to the application, creating a user interface
+    and facilitating interactions between the user and the underlying image processing capabilities.
 
 # Design changes and Justification:
 
-Integration of New Functionalities
-1. Enhanced Image Interface:
-- The Image interface was extended to include new functionalities. 
-- The ColorImage class, implementing this interface, was updated to support these new functionalities, ensuring a seamless integration with existing structures.
-2. Refactoring for Command Design Pattern:
-- The processCommand method in the ImageController class was refactored to adhere to the Command Design Pattern. This change was made to improve code maintainability, readability, and scalability.
-- By encapsulating each image processing command into its own class, we've made the system more modular and easier to extend with new commands in the future.
-3. Command Line Interface (CLI) Enhancements:
-- The CLI was enhanced to provide users with a choice between interactive command line input and file-based input.
+-- Integration of New Functionalities
 
-Justification for Design Choices
-1. Adherence to Open-Closed Principle:
-- By extending the Image interface for new functionalities, we adhere to the Open-Closed Principle, allowing our appliation entities to be open for extension but closed for modification. This design choice minimizes the risk of introducing bugs into existing code and eases the addition of new features.
-2. Command Design Pattern Benefits:
-- Implementing the Command Design Pattern in our ImageController enhances the separation of concerns by decoupling the command execution process from the actual command logic.
+1. Enhanced Command Line Interface (CLI):
+The CLI has been upgraded to offer users a choice between GUI, file-based, or interactive command line input. This enhancement makes the application more flexible and accessible, catering to different user preferences and scenarios.
 
-# Running the program
+2. Introduction of Callback Functions:
+Callback functions have been implemented to ensure that the ImageController and the View are not directly dependent on each other. This design approach enhances modularity and promotes the separation of concerns. It allows the View to notify the Controller of user actions without having a direct reference to the Controller, thereby reducing coupling between components.
 
-The application allows us to run the image processing in both the ways :
+3. Adoption of the Features Interface and its Implementation:
+The Features interface and its implementation in FeaturesImpl class streamline the way image processing operations are handled. This design centralizes the image processing functionalities, making it easier to manage and extend.
 
-Running the Program
-The application supports two modes of running image processing tasks: through a Command Line Script and by using a File as a command. Below are the steps for each method:
+4. Graphical User Interface Development:
+The ImageProcessingGUI class provides a user-friendly graphical interface, making the application more intuitive and easier to interact with. The GUI includes various interactive elements like buttons, sliders, and visual feedback mechanisms, significantly enhancing the user experience.
 
-1. Command Line Script Mode
-- When you run the program, you will be presented with two options.
-- Choose option 1 for Command Line Script mode.
-- Once selected, the interactive mode will start, and you can input script commands directly on the command line.
-- Refer to the USEME file for a list of supported script commands and usage examples.
+-- Justification for Design Choices
+1. Flexibility and User Accessibility:
+The diversified modes of operation (GUI, file-based, interactive CLI) cater to a wide range of users, from those who prefer graphical interfaces to those who are more comfortable with command-line interactions.
 
-2. File as Command Mode
-- When you run the program, choose option 2 for File as Command mode.
-- You will be prompted to enter the file path. Input the full path to the text file containing the script commands (e.g., C:/Users/Ayush/res/output.txt).
-- Ensure that the file contains valid script commands as outlined in the USEME file.
-- The program will execute all the commands in the text file.
-- Check the output directory specified in your text file to view the processed images.
+2. Reduced Coupling through Callbacks:
+The use of callback functions to facilitate communication between the View and the Controller aligns with modern software design principles, reducing coupling and increasing the robustness of the application. This approach allows for easier maintenance and scalability.
 
-Steps to Run the Program
-- Open Main.java.
-- Run the program using the run button in your IDE.
-- Select the desired mode (1 or 2) as per the instructions above.
-
-Additional Notes
-- Ensure that the input and output paths of the images in the script commands (whether entered via command line or specified in the file) are correctly set according to your file locations.
-
-Example :
-
-- load "image/path" loadImg
-- sepia loadImg load_sepia
-- save "output_path/sepia.jpg" load_sepia
-
-# Running the JAR file
-
-- Open a command prompt.
-- Use the cd command to navigate to the directory where ImageProcessing.jar is located.
-- Type java -jar ImageProcessing.jar and press Enter. This command will start the application.
-- After launch of the application, follow the steps in "Running the program".
-
-# Text files submitted
-
-- output.txt has all the commands of Assignment 4 and Assignment 5.
-- assign5.txt/assign5-back.txt has all commands of Assignment 5.
-- test.txt is used for testing.
+3. Enhanced User Experience with GUI:
+The development of a comprehensive GUI addresses the needs of users who prefer visual interactions. It makes the application more accessible, especially to those who may not be familiar with command-line operations.
+   
+# Running the Program/JAR File
+Open a command prompt.
+Navigate to the directory containing ImageProcessing.jar.
+Run java -jar ImageProcessing.jar [arguments].
+Select the desired mode of operation as outlined in USEME.md for the arguments to be passed.
+   
+# Text Files Submitted
+output.txt: Contains commands for Assignments 4 and 5.
 
 # Test Image
-
 The image in use is clicked by us and we give legal rights to the professor amd the teaching
 assistant to use it for testing purpose.
