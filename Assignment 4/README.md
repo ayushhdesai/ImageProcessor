@@ -35,7 +35,7 @@ graphical user interface, file-based or interactive mode style.
    Interacts with the Model classes (like ColorImage and GreyscaleImage)
    and uses ImageUtil for any necessary image operations.
 
-9. Features (Interface): Defines a set of methods for various image processing operations, supporting 
+9. Features (Interface): Defines a set of callback methods for various image processing operations, supporting 
    functionalities in a view. These operations include loading and saving images, applying 
    different transformations and effects, and visualizing image components.
 
@@ -51,7 +51,9 @@ graphical user interface, file-based or interactive mode style.
     It includes features like buttons for various image operations (e.g., flipping, blurring, color correction), 
     sliders for adjustable parameters, and interactive components for real-time image processing feedback.
 
-13. Main Method - Provides the entry point to the application, creating a user interface
+13. MockView (Class): Creating a mock object of the View interface in order to isolate the testing of the Controller independently.
+
+14. Main Method - Provides the entry point to the application, creating a user interface
     and facilitating interactions between the user and the underlying image processing capabilities.
 
 # Design changes and Justification:
@@ -75,7 +77,7 @@ The ImageProcessingGUI class provides a user-friendly graphical interface, makin
 The diversified modes of operation (GUI, file-based, interactive CLI) cater to a wide range of users, from those who prefer graphical interfaces to those who are more comfortable with command-line interactions.
 
 2. Reduced Coupling through Callbacks:
-The use of callback functions to facilitate communication between the View and the Controller aligns with modern software design principles, reducing coupling and increasing the robustness of the application. This approach allows for easier maintenance and scalability.
+The use of callback functions to facilitate communication between the View and the Controller aligns with modern software design principles, reducing coupling and increasing the robustness of the application. This approach allows for easier maintenance and scalability and decreases the coupling between the Controller and the View.
 
 3. Enhanced User Experience with GUI:
 The development of a comprehensive GUI addresses the needs of users who prefer visual interactions. It makes the application more accessible, especially to those who may not be familiar with command-line operations.
